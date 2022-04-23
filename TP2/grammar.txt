@@ -1,0 +1,84 @@
+TOP-GENERIC
+
+Instrucoes -> '{' Comands '}' 
+        
+
+Comands -> Comand Comands
+        | Comand
+
+Comand -> Atribution
+       | Conditional
+       | Cycle
+
+*********************************************************
+Conditional
+
+Conditional -> 'if' '(' Conditon ')' '{' Comandos '}' Extension
+
+Extension -> 'else' '{' Comandos '}'
+           | $
+
+Condition -> Condition AND Condition2
+           | Condition2
+
+
+Condition2 -> Condition2 OR Condition3
+           | Condition3 
+
+Condition3 -> '(' Condition ')'
+            | RelExpression
+            | '!' Condition
+
+RelExpression -> Expression Continuation
+
+
+Continuation -> OpRel Expression
+              |  $
+
+OpRel -> GoE     # >=
+       | LoE     # <= 
+       | Lower   # <
+       | Greater # >
+       | Equal   # ==
+       | Diff    # != 
+
+
+
+++ATRIBUICOES
+
+Atribuicao -> INT VAR '[' Nint ']'
+            | VAR '[' Nint ']' '=' Expression
+            | VAR '=' Expression
+            | INT VAR Rest
+
+Rest -> '=' Expression
+      | $
+
+
+
+++CICLO
+CYCLE : WHILE '(' Conditions ')' '{' Comands '}'
+
+*********************************************************
+TRIVIALIDADE
+
+Expression -> Values
+            | Expression '+' Values
+            | Expression '-' Values
+
+
+Values -> Value
+      | Values '*' Value
+      | Values '/' Value
+      | Values '%' Value
+
+Value  -> Nint
+        | VAR
+        | '(' Expression')'
+
+
+#########################################################IO
+
+INPUT -> 
+
+OUTPUT -> 'print' VAR 
