@@ -2,12 +2,12 @@ from lark import Discard
 from lark import Lark,Token
 from lark.tree import pydot__tree_to_png
 from lark.visitors import Interpreter
+
 import geraHTML as html
 
 # Note que a nova vers ̃ao dessa linguagem, que ser ́a designada por LPIS2, deve permitir declarar vari ́aveis at ́omicas e
 # estruturadas (incluindo como no Python as estruturas: conjunto, lista, tuplo, dicionario), instru ̧c ̃oes condicionais e
 # pelo menos 3 variantes de ciclos.
-
 
 class MyInterpreter (Interpreter):
     
@@ -30,7 +30,7 @@ class MyInterpreter (Interpreter):
 
 
     def start(self,tree):
-        r = self.visit(tree.children[0])
+        self.visit(tree.children[0])
         print("\nstart\n")
         print(tree)
         data = {}
@@ -44,39 +44,48 @@ class MyInterpreter (Interpreter):
 
     def instrucoes(self,tree):
         print("\nconjunto de instrucoes\n")
-        var = self.visit_children(tree)
+        #x = tree.scan_values(lambda v: v.data=='conditional') 
+        #var = self.visit_children(tree)
+        a = []
+        for elem in tree.children:
+            if(elem.data=='instrucao'):
+                a.append(self.visit(elem))
+        return a
+
+        #print(var)
         # print(var)
         # for elem in var:
         #     print("instrucao")
         #     #self.visit(elem)
         #     print(elem)
         # r = self.visit(tree.children[0])
-        return var
+
 
 
 
     def instrucao(self,tree):
+        print("INSTRUCAO\n")
         q = tree.children[0]
-        if (not isinstance(q, Token)):
-            if( q.data == 'atribuicao'):
-                self.totInst["atribuicao"]+=1
-            elif (q.data == 'conditional'):
-                self.totInst["cond"]+=1
-            elif (q.data == 'ciclos'):
-                self.totInst["ciclo"]+=1
-            elif (q.data == 'print'):
-                self.totInst["rw"]+=1
-                print("\nPRINT")
-            print(tree.children[0])
-            n = self.visit(tree.children[0])
-            return n
-        else:
-          self.visit(tree.children[0])
-          return 0
+        self.visit(tree.children[0])
+        if( q.data == 'atribuicao'):
+            self.totInst["atribuicao"]+=1
+            return "atribuicao"
+        elif (q.data == 'conditional'):
+            self.totInst["cond"]+=1
+            return "conditional"
+        elif (q.data == 'ciclos'):
+            self.totInst["ciclo"]+=1
+            return "ciclo"
+        elif (q.data == 'print'):
+            self.totInst["rw"]+=1
+            return "print"
+        # print(tree.children[0])
+        # n = self.visit(tree.children[0])
+        # return n
 
     def declare(self,tree):
+        print("DECLARE\n")
         q = tree.children[0]
-        print("\nDEFINE")
         self.totVarsDec += 1
         if len(tree.children) == 2:
             self.totInst["atribuicao"] += 1
@@ -84,25 +93,25 @@ class MyInterpreter (Interpreter):
             self.variaveis[str(q)] = self.varStatus(DEC=1, DN=True)
         else: 
             self.variaveis[str(q)]["DEC"] += 1
-
-        return self.visit_children(tree)
+        self.visit_children(tree)
+        #return self.visit_children(tree)
 
 
     def atribuicao(self, tree):
+        print("ATRIBUICAO\n")
         q = tree.children[0]
-        print("\nDEFINE")
         if q not in self.variaveis.keys():
             self.variaveis[str(q)] = self.varStatus(ND = True)
         else: 
             self.variaveis[str(q)]["DN"] = False
 
-        return self.visit_children(tree)
+        # return self.visit_children(tree)
    
     def valor(self,tree):
         q = tree.children[0]
 
         if q.type == 'VAR':
-            print("ENTROU NOVAR")
+            print("ENTROU NA VARIAVEL\n")
         
              
             if q not in self.variaveis.keys():
@@ -152,15 +161,37 @@ class MyInterpreter (Interpreter):
         return var
 
     def conditional(self, tree):
+        print("CONDITIONAL\n")
         q = self.visit(tree.children[1])
-        
-        print("----------------------------------")
-        #print("CONDITIONAL: " , self.visit_children(tree))
-        print()
-        print(tree)
-        print("----------------------------------")
-        #if q != "NONE":
-         #   self.totEstruturasAninh["mm"] += 1
+        # x = q[0]
+        print("--------------AQUI ESTA O Q (COND)--------------------")
+        print(q)
+        if 'conditional' in q:
+            self.totEstruturasAninh["mm"] += 1
+        elif 'ciclo' in q:
+            self.totEstruturasAninh["dif"] += 1
+        if len(tree.children) == 3:
+            self.visit(tree.children[2])
+    
+    def ciclos(self, tree):
+        q = self.visit(tree.children[0])
+        print("--------------AQUI ESTA O Q (CICLO)--------------------")
+        print(q)
+        if 'conditional' in q:
+            self.totEstruturasAninh["dif"] += 1
+        elif 'ciclo' in q:
+            self.totEstruturasAninh["mm"] += 1
+
+    def ciclo1(self, tree):
+        return self.visit(tree.children[1])
+    
+    def ciclo2(self,tree):
+        return self.visit(tree.children[0])
+    
+    def ciclo3(self,tree):
+        return self.visit(tree.children[3])
+
+     
 
 
 grammar = r'''
@@ -179,11 +210,11 @@ instrucao : declare
 
 ciclos : ciclo1
        | ciclo2
-//     | ciclo3
+       | ciclo3
 
 ciclo1 : "while" "(" condition ")" "{" instrucoes "}"
 ciclo2 : "repeat" "{" instrucoes "}" "until" "(" condition ")"
-ciclo3 : "for" "(" (declare | atribuicao | ) ";" condition ";" atribuicao ")" "{" instrucoes "}"
+ciclo3 : "for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
 
 // LEITURA 
 print : "print" "(" VAR ")"
@@ -273,6 +304,7 @@ value : (estruturas | STRING | INT)
 STRING : /\"/ (WORD|" ")* /\"/
 VAR : LETTER (LETTER | DIGIT)*
 
+
 MAIOR : ">"
 MAIORIG : ">="
 MENOR: "<"
@@ -318,8 +350,9 @@ parse_tree = p.parse(frase)
 #print(parse_tree.pretty())
 data = MyInterpreter().visit(parse_tree)
 #print("Número de números ",data[0]," Somatório: ",data[1])
-print(data)
+# print(data)
 
 data["vars"] = varStatus(data["vars"])
 # print(data)
-# print(html.geraHTML(data))
+
+print(html.geraHTML(data))
