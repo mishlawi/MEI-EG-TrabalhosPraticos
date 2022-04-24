@@ -27,12 +27,8 @@ class MyInterpreter (Interpreter):
         self.totEstruturasAninh = {"mm" : 0, "dif" : 0}
         self.controloAninh = {} # {ifAninhado : ifSolo}
 
-
-
     def start(self,tree):
-        self.visit(tree.children[0])
-        print("\nstart\n")
-        print(tree)
+        print(self.visit(tree.children[0]))
         data = {}
         data["vars"] = self.variaveis
         data["#varsDec"] = self.totVarsDec
@@ -42,15 +38,187 @@ class MyInterpreter (Interpreter):
         data["estruturasAninhadas"] = self.controloAninh
         return data
 
+    def atribuicao(self, tree):
+        q = tree.children[0]
+        next = self.visit(tree.children[1])
+        if q not in self.variaveis.keys():
+            self.variaveis[str(q)] = self.varStatus(ND = True)
+        else: 
+            self.variaveis[str(q)]["DN"] = False
+        return str(q) + ' = ' + str(next)
+        
+   
+    def ciclos(self, tree):
+        dicionario = self.visit(tree.children[0])
+        if 'conditional' in dicionario["inst_type"]:
+            self.totEstruturasAninh["dif"] += 1
+        elif 'ciclo' in dicionario["inst_type"]:
+            self.totEstruturasAninh["mm"] += 1
+        return dicionario
+
+
+    def ciclo1(self, tree):
+        # "while" "(" condition ")" "{" instrucoes "}"
+        var = self.visit_children(tree)
+        return { "type" : "while", "cond" : var[0], "inst_type":var[1][0], "inst" : var[1][1]}
+    
+    def ciclo2(self,tree):
+        # "repeat" "{" instrucoes "}" "until" "(" condition ")"
+        var = self.visit_children(tree)
+        return { "type" : "reapeat", "cond" : var[1], "inst_type":var[0][0], "inst" : var[0][1]}
+    
+    # def ciclo3(self,tree):
+    #     #"for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
+    #     var = self.visit_children(tree)
+    #     return {"cond" : var[0], "inst" : var[1]}
+
+    def condition(self, tree): 
+        #     condition "and" condition2
+        #   | condition2
+        q = tree.children
+        if len(q) == 1:
+            return self.visit(q[0])
+        else:
+            return self.visit(q[0]) + ' and ' + self.visit(q[1])
+
+    def condition2(self,tree):
+        # condition2 "or" condition3
+        # | condition3
+        q = tree.children
+        if len(q) == 1:
+            return self.visit(q[0])
+        else:
+            return self.visit(q[0]) + ' or ' + self.visit(q[1])
+
+    def condition3(self, tree): 
+        # "(" condition ")"
+        #    | exprel
+        #    | "!" condition 
+        q = tree.children
+        return self.visit(q[0])
+
+    def conditional(self, tree):
+        # "if" "(" condition ")" "{" instrucoes "}" ("else" "{" instrucoes "}")?
+        var = self.visit_children(tree)
+        dicionario = {"type": "if", "cond" : var[0], "inst_type":var[1][0], "inst" : var[1][1]}
+        if len(tree.children) == 3:
+            dicionario["else_inst_type"] = var[2][0]
+            dicionario["else_inst"] = var[2][1]
+
+        if 'conditional' in dicionario["inst_type"]:
+            self.totEstruturasAninh["mm"] += 1
+        elif 'ciclo' in dicionario["inst_type"]:
+            self.totEstruturasAninh["dif"] += 1
+
+        return dicionario
+
+    def conta(self, tree):
+        # conta : valor TIMES valor
+        #       | valor DIV valor
+        #       | valor MOD valor 
+        #       | valor
+        q = self.visit_children(tree)
+        
+        if len(q) == 1:
+            return str(q[0])
+        elif q[1].type == "TIMES":
+            return str(q[0]) + '*' + str(q[2])
+        elif q[1].type == "DIV":
+            return str(q[0]) + '/' + str(q[2]) 
+        elif q[1].type == "MOD":
+            return str(q[0]) + '%' + str(q[2]) 
+
+    def declare(self,tree):
+        q = tree.children[0]
+        self.totVarsDec += 1
+        if len(tree.children) == 2:
+            self.totInst["atribuicao"] += 1
+        if q not in self.variaveis.keys():
+            self.variaveis[str(q)] = self.varStatus(DEC=1, DN=True)
+        else: 
+            self.variaveis[str(q)]["DEC"] += 1
+        return 'var ' + self.visit(q)
+
+
+    def define(self,tree):
+        #      expression
+        #    | estruturas
+        #    | input
+        #    | INT
+        #    | STRING
+        q = tree.children[0]
+        if isinstance(q,Token):
+            if q.type == "INT":
+                return int(q)
+            else:
+                string = str(q)
+                return string[1:-1]
+        else:
+            return self.visit(q)
+
+    def dicionario(self,tree):
+        var = self.visit_children(tree)
+        
+        dicionarios = {}
+        for i in range(0, len(var), 2):
+            dicionarios[var[i]] = var[i+1]
+        self.totEstruturas["dicts"] += 1
+        return dicionarios
+        
+    def estruturas(self, tree):
+        return self.visit(tree.children[0])
+
+    def exprel(self, tree):
+        # expression oprel expression
+        var = self.visit_children(tree) 
+        return var[0] + " "+ str(var[1][0]) + " " + var[2]
+
+    def expression(self,tree):
+        #      expression PLUS conta
+        #    | expression MINUS conta
+        #    | conta
+        q = self.visit_children(tree)
+        if len(q) == 1:
+            return str(q[0])
+        else:
+            if q[1].type == 'PLUS':
+                return str(q[0]) + '+' + str(q[2])
+            else:
+                return str(q[0]) + '-' + str(q[2])
+
+    def input(self,tree):
+        self.totInst["rw"]+=1
+        return "input()"
+
+    def instrucao(self,tree):
+        q = tree.children[0]
+        var = self.visit(tree.children[0])
+        if q.data == 'atribuicao':
+            # print("atrib: ", var)
+            self.totInst["atribuicao"]+=1
+            return ("atribuicao", var)
+        elif q.data == 'conditional':
+            # print("condi: ", var)
+            self.totInst["cond"]+=1
+            return ("conditional", var)
+        elif q.data == 'ciclos':
+            # print("ciclo: ", var)
+            self.totInst["ciclo"]+=1
+            return ("ciclo", var)
+        elif q.data == 'print':
+            # print("rw: ", var)
+            self.totInst["rw"]+=1
+            return ("print", var)
+        else:
+            return ("declaracao", var)
+
     def instrucoes(self,tree):
-        print("\nconjunto de instrucoes\n")
         #x = tree.scan_values(lambda v: v.data=='conditional') 
         #var = self.visit_children(tree)
         a = []
         for elem in tree.children:
-            if(elem.data=='instrucao'):
-                a.append(self.visit(elem))
-        return a
+            a.append(self.visit(elem))
+        return list(map(list, zip(*a)))
 
         #print(var)
         # print(var)
@@ -60,139 +228,68 @@ class MyInterpreter (Interpreter):
         #     print(elem)
         # r = self.visit(tree.children[0])
 
+    def lista(self,tree):
+        var = self.visit_children(tree)
+        listas = []
+        for elem in var:
+            listas.append(elem)
+        self.totEstruturas["listas"] += 1
+        return listas
 
+    def set(self, tree):
+        var = self.visit_children(tree)
+        sets = set()
+        for elem in var:
+            sets.add(elem)
+        self.totEstruturas["conjuntos"]+=1
+        return sets
 
-
-    def instrucao(self,tree):
-        print("INSTRUCAO\n")
-        q = tree.children[0]
-        self.visit(tree.children[0])
-        if( q.data == 'atribuicao'):
-            self.totInst["atribuicao"]+=1
-            return "atribuicao"
-        elif (q.data == 'conditional'):
-            self.totInst["cond"]+=1
-            return "conditional"
-        elif (q.data == 'ciclos'):
-            self.totInst["ciclo"]+=1
-            return "ciclo"
-        elif (q.data == 'print'):
-            self.totInst["rw"]+=1
-            return "print"
-        # print(tree.children[0])
-        # n = self.visit(tree.children[0])
-        # return n
-
-    def declare(self,tree):
-        print("DECLARE\n")
-        q = tree.children[0]
-        self.totVarsDec += 1
-        if len(tree.children) == 2:
-            self.totInst["atribuicao"] += 1
-        if q not in self.variaveis.keys():
-            self.variaveis[str(q)] = self.varStatus(DEC=1, DN=True)
-        else: 
-            self.variaveis[str(q)]["DEC"] += 1
-        self.visit_children(tree)
-        #return self.visit_children(tree)
-
-
-    def atribuicao(self, tree):
-        print("ATRIBUICAO\n")
-        q = tree.children[0]
-        if q not in self.variaveis.keys():
-            self.variaveis[str(q)] = self.varStatus(ND = True)
-        else: 
-            self.variaveis[str(q)]["DN"] = False
-
-        # return self.visit_children(tree)
-   
+    def tuple(self,tree):
+        var = self.visit_children(tree)
+        tuples = ()
+        for elem in var:
+            tuples = (*tuples, elem)
+        self.totEstruturas["tuplos"] += 1
+        return tuples
+        
     def valor(self,tree):
         q = tree.children[0]
 
         if q.type == 'VAR':
-            print("ENTROU NA VARIAVEL\n")
-        
-             
             if q not in self.variaveis.keys():
                 self.variaveis[str(q)] = self.varStatus(ND=True,UNI = True)
             else: 
                 self.variaveis[str(q)]["DN"] = False
+            return str(q)
+        elif q.type == 'INT':
+            return int(q)
 
-    def input(self,tree):
-        self.totInst["rw"]+=1
+    def key(self, tree): 
+        # (STRING | INT | tuplecomp) // tipos de estruturas/dados que são imutáveis/comparaveis
+        q = tree.children[0]
+        if isinstance(q,Token):
+            if q.type == "STRING":
+                string = str(q)
+                return string[1:-1]
+            else:
+                return int(q)
+        else:
+            var = self.visit(q)
+            return var
 
-    def lista(self,tree):
-        var = self.visit_children(tree)
-        self.totEstruturas["listas"] += 1
-        for elem in var:
-            print("estrutura lista")
-            #self.visit(elem)
-            print(elem)
-        return var
-
-
-    def tuple(self,tree):
-        self.totEstruturas["tuplos"] += 1
-        var = self.visit_children(tree)
-        for elem in var:
-            print("estrutura tuplo")
-            #self.visit(elem)
-            print(elem)
-        return var        
-        
-
-    def dicionario(self,tree):
-        self.totEstruturas["dicts"] += 1
-        var = self.visit_children(tree)
-        for elem in var:
-            print("estrutura dicionario")
-            #self.visit(elem)
-            print(elem)
-        return var
-
-    def set(self, tree):
-        self.totEstruturas["conjuntos"]+=1
-        var = self.visit_children(tree)
-        for elem in var:
-            print("estrutura set")
-            #self.visit(elem)
-            print(elem)
-        return var
-
-    def conditional(self, tree):
-        print("CONDITIONAL\n")
-        q = self.visit(tree.children[1])
-        # x = q[0]
-        print("--------------AQUI ESTA O Q (COND)--------------------")
-        print(q)
-        if 'conditional' in q:
-            self.totEstruturasAninh["mm"] += 1
-        elif 'ciclo' in q:
-            self.totEstruturasAninh["dif"] += 1
-        if len(tree.children) == 3:
-            self.visit(tree.children[2])
+    def value(self, tree): 
+        # (estruturas | STRING | INT)
+        q = tree.children[0]
+        if isinstance(q,Token):
+            if q.type == "STRING":
+                string = str(q)
+                return string[1:-1]
+            else:
+                return int(q)
+        else:
+            var = self.visit(q)
+            return var
     
-    def ciclos(self, tree):
-        q = self.visit(tree.children[0])
-        print("--------------AQUI ESTA O Q (CICLO)--------------------")
-        print(q)
-        if 'conditional' in q:
-            self.totEstruturasAninh["dif"] += 1
-        elif 'ciclo' in q:
-            self.totEstruturasAninh["mm"] += 1
-
-    def ciclo1(self, tree):
-        return self.visit(tree.children[1])
-    
-    def ciclo2(self,tree):
-        return self.visit(tree.children[0])
-    
-    def ciclo3(self,tree):
-        return self.visit(tree.children[3])
-
-     
-
 
 grammar = r'''
 
@@ -247,7 +344,7 @@ oprel : MAIORIG
 
 // ATRIBUICOES e INICIALIZACOES
 
-declare : "var" VAR  "=" define
+declare : "var" atribuicao
         | "var" VAR
 
 atribuicao : VAR "=" define
@@ -256,17 +353,18 @@ define : expression
        | estruturas
        | input
        | INT
+       | STRING
 
 
 // VALORES E CONTAS ELEMENTARES
 
-expression : expression "+" conta
-           | expression "-" conta
+expression : expression PLUS conta
+           | expression MINUS conta
            | conta
 
-conta : valor "*" valor
-      | valor "/" valor
-      | valor "%" valor 
+conta : valor TIMES valor
+      | valor DIV valor
+      | valor MOD valor 
       | valor
 
 valor : INT
@@ -274,6 +372,7 @@ valor : INT
       | "(" expression ")"
 
 // TIPOS DE ESTRUTURAS
+
 estruturas : lista
            | tuple
            | dicionario
@@ -295,15 +394,21 @@ tuple : "(" value ("," value)* ")" // pode ter listas e dicionarios
 
 tuplecomp : "(" key ("," key)* ")" // NAO pode ter listas e dicionarios
 
+
+
 key : (STRING | INT | tuplecomp) // tipos de estruturas/dados que são imutáveis/comparaveis
 
 value : (estruturas | STRING | INT)
 
-// TERMINAIS
+
+
+// TERMINAIS ELEMENTARES
 
 STRING : /\"/ (WORD|" ")* /\"/
 VAR : LETTER (LETTER | DIGIT)*
 
+
+// SINAIS RELACIONAIS
 
 MAIOR : ">"
 MAIORIG : ">="
@@ -311,6 +416,15 @@ MENOR: "<"
 MENORIG : "<="
 IGUAL : "=="
 DIF : "!="
+
+
+// SINAIS OPERAÇÕES
+
+PLUS : "+"
+MINUS : "-"
+TIMES : "*"
+DIV : "/"
+MOD : "%"
 
 
 // IMPORTS
@@ -343,8 +457,6 @@ def varStatus(varS):
 f = open("frase.txt", "r")
 
 frase = f.read()
-
-#frase = """int var = 4 * ( x + 3);"""
 p = Lark(grammar)
 parse_tree = p.parse(frase)
 #print(parse_tree.pretty())
@@ -353,6 +465,6 @@ data = MyInterpreter().visit(parse_tree)
 # print(data)
 
 data["vars"] = varStatus(data["vars"])
-# print(data)
+print(data)
 
-print(html.geraHTML(data))
+#print(html.geraHTML(data,frase))

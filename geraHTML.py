@@ -3,7 +3,10 @@ def writeInFile(string):
     f.write(string)
     f.close
 
-def geraHTML(data):
+def geraHTML(data,frase):
+    return geraRel(data)+geraCodigo(frase)
+    
+def geraRel(data): 
     return '''
 <!DOCTYPE html>
 <html>
@@ -89,6 +92,12 @@ def geraHTML(data):
                 </tr>
             </table>
         <h2>5. Ifs aninhados</h2>
+     ''' 
+
+def geraCodigo(frase):
+    r="""
+
     </body>
 </html>
-'''
+    """
+    return r
