@@ -14,6 +14,31 @@ class MyInterpreter (Interpreter):
     def varStatus(self, DEC = 0, ND = False, UNI = False, DN = False):
         return {"DEC" : DEC, "ND" : ND, "UNI" : UNI, "DN" : DN}
 
+    def geraCodigoLivre(self, dicionario):
+        string = ""
+        if(type(dicionario) == dict):
+            if dicionario["type"] == "if":
+                string += "if(" + dicionario["cond"] + "){\n"
+            elif dicionario["type"] == "while":
+                string += "while(" + dicionario["cond"] + "){\n"
+            for elem in dicionario["inst"]:
+                string += self.geraCodigoLivre(elem)
+            string += "};\n"
+        elif(type(dicionario) == list):
+            for elem in dicionario:
+                string += elem + ";\n"
+        else:
+            string += dicionario + ";\n"
+        return string
+
+    def geraCodigoSimples(self, dicionario):
+        while dicionario["type"] == "if" and dicionario["inst_type"][0] == "conditional":
+            dicionario["cond"] += " and " + dicionario["inst"][0]["cond"]
+            dicionario["inst_type"] = dicionario["inst"][0]["inst_type"]
+            dicionario["inst"] = dicionario["inst"][0]["inst"]
+        return self.geraCodigoLivre(dicionario)
+
+
     # DEC: valor numérico de declarações 
     # ND: Não declarada 
     # UNI : Usada mas Não Inicializada 
@@ -28,7 +53,7 @@ class MyInterpreter (Interpreter):
         self.controloAninh = {} # {ifAninhado : ifSolo}
 
     def start(self,tree):
-        print(self.visit(tree.children[0]))
+        self.visit(tree.children[0])
         data = {}
         data["vars"] = self.variaveis
         data["#varsDec"] = self.totVarsDec
@@ -39,6 +64,7 @@ class MyInterpreter (Interpreter):
         return data
 
     def atribuicao(self, tree):
+        # atribuicao : VAR "=" define
         q = tree.children[0]
         next = self.visit(tree.children[1])
         if q not in self.variaveis.keys():
@@ -110,6 +136,9 @@ class MyInterpreter (Interpreter):
         elif 'ciclo' in dicionario["inst_type"]:
             self.totEstruturasAninh["dif"] += 1
 
+        if dicionario["inst_type"][0] == 'conditional':
+            self.controloAninh[self.geraCodigoLivre(dicionario)] = self.geraCodigoSimples(dicionario)
+
         return dicionario
 
     def conta(self, tree):
@@ -129,15 +158,27 @@ class MyInterpreter (Interpreter):
             return str(q[0]) + '%' + str(q[2]) 
 
     def declare(self,tree):
-        q = tree.children[0]
+        #   "var" atribuicao
+        # | "var" VAR
+
         self.totVarsDec += 1
-        if len(tree.children) == 2:
+        var = tree.children[0]
+        if not isinstance(var, Token):
+            q = self.visit(var)
+            var = q.split(' =')[0]
             self.totInst["atribuicao"] += 1
-        if q not in self.variaveis.keys():
-            self.variaveis[str(q)] = self.varStatus(DEC=1, DN=True)
-        else: 
-            self.variaveis[str(q)]["DEC"] += 1
-        return 'var ' + self.visit(q)
+            if var not in self.variaveis.keys():
+                self.variaveis[var] = self.varStatus(DEC=1)
+            else: 
+                self.variaveis[var]["DEC"] += 1
+                self.variaveis[var]["ND"] = False
+                self.variaveis[var]["UNI"] = False
+        elif var not in self.variaveis.keys():
+            self.variaveis[str(var)] = self.varStatus(DEC=1, DN = True)
+        else:
+            self.variaveis[str(var)]["DEC"] += 1
+
+        return 'var ' + str(var)
 
 
     def define(self,tree):
@@ -235,6 +276,12 @@ class MyInterpreter (Interpreter):
             listas.append(elem)
         self.totEstruturas["listas"] += 1
         return listas
+
+    def print(self,tree):
+        # print : "print" "(" VAR ")"
+        q = self.visit_children(tree)
+        self.totInst["rw"]+=1
+        return "print(" + str(q[0]) + ")"
 
     def set(self, tree):
         var = self.visit_children(tree)
