@@ -11,7 +11,17 @@ def geraRel(data):
         * {
             box-sizing: border-box;
         }
-
+        body {
+            font-family: Arial;
+            margin: 0;
+        }
+        .header {
+            padding: 5px;
+            text-align: center;
+            background: #1a97bc;
+            color: white;
+            font-size: 15px;
+        }
         /* Create two equal columns that floats next to each other */
         .column {
             float: left;
@@ -38,11 +48,13 @@ def geraRel(data):
         <meta charset="UTF-8"/>
     </head>
     <body>
-        <h1> 
-            <b>Engenharia Gramatical</b>
-            <br>
-            Relatório 
-        </h1>
+        <div class="header">
+            <h1> 
+                <b>Engenharia Gramatical</b>
+                <br>
+                Relatório 
+            </h1>
+        </div>
         <p><h3><b> Realizado por: </b></h3></p>
             Angélica Cunha <i>PG47024</i>
             <br>
