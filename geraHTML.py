@@ -70,6 +70,7 @@ def geraRel(data):
         <hr>''' + f'''
         <h2>1. Variáveis</h2>
             <ul>
+                <li><b>Variáveis do programa: </b>{data["vars"]["VARS"]} (#TOTAL: {len(data["vars"]["VARS"])})</li>
                 <li><b>Variáveis redeclaradas: </b>{data["vars"]["RED"]} (#TOTAL: {len(data["vars"]["RED"])})</li>
                 <li><b>Variáveis não-declaradas: </b>{data["vars"]["ND"]} (#TOTAL: {len(data["vars"]["ND"])})</li>
                 <li><b>Variáveis usadas, mas não inicializadas: </b>{data["vars"]["UNI"]} (#TOTAL: {len(data["vars"]["UNI"])})</li>

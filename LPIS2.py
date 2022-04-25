@@ -491,8 +491,9 @@ MOD : "%"
 '''
 
 def varStatus(varS):
-    sVar = {"RED" : [], "ND" : [], "UNI" : [], "DN" : []}
+    sVar = {"RED" : [], "ND" : [], "UNI" : [], "DN" : [], "VARS" : []}
     for var in varS.keys():
+        sVar["VARS"].append(var)
         if(varS[var]["DEC"] > 1):
             sVar["RED"].append(var)
         if(varS[var]["ND"] == True):
