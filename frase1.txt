@@ -1,3 +1,6 @@
+var a = 4;
+var c = 8;
+lista = [1,2,3,4];
 if (a>5){
     while(banana>3){
         if (b<2 and a<3){                
@@ -6,7 +9,7 @@ if (a>5){
                     d=a+b;
                     while(z==2){
                         var z;
-                        var atum = "atum com fiambre";
+                        var const = "a simple string";
                         c = 3;
                         d = 1 + 8 * 9 - 3 + c +c;
                     };

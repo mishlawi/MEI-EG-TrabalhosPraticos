@@ -87,16 +87,16 @@
         <div class="container">
             <h3>1. Variáveis</h3>
                 <ul style="list-style-type:none">
-                    <li><b >Variáveis do programa: </b> 7 
-                            &nbsp;&nbsp;['a', 'banana', 'b', 'c', 'd', 'z', 'atum'] </li>
-                    <li><b>Variáveis redeclaradas: </b> 0 
-                             &nbsp;&nbsp;[] </li>
-                    <li><b>Variáveis não-declaradas: </b> 5 
-                             &nbsp;&nbsp;['banana', 'b', 'c', 'd', 'z'] </li>
-                    <li><b>Variáveis usadas, mas não inicializadas: </b> 4 
-                             &nbsp;&nbsp; ['banana', 'b', 'c', 'z']</li>
-                    <li><b>Variáveis declaradas, mas nunca mencionadas: </b>0 
-                             &nbsp;&nbsp; [] </li>
+                    <li><b >Variáveis do programa: </b> 5 
+                            &nbsp;&nbsp;['a', 'b', 'nome', 'c', 'count'] </li>
+                    <li><b>Variáveis redeclaradas: </b> 1 
+                             &nbsp;&nbsp;['a'] </li>
+                    <li><b>Variáveis não-declaradas: </b> 2 
+                             &nbsp;&nbsp;['c', 'count'] </li>
+                    <li><b>Variáveis usadas, mas não inicializadas: </b> 2 
+                             &nbsp;&nbsp; ['c', 'count']</li>
+                    <li><b>Variáveis declaradas, mas nunca mencionadas: </b>1 
+                             &nbsp;&nbsp; ['nome'] </li>
                 </ul>
             <h3>2. Variáveis declaradas vs. Dados estruturados</h3>
                 <table>
@@ -112,12 +112,12 @@
                         <td><b>Total</b></th>
                     </tr>
                     <tr>
-                        <td>3</td>
-                        <td>1</td>
-                        <td>3</td>
-                        <td>1</td>
+                        <td>4</td>
                         <td>0</td>
-                        <td>5</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
                     </tr>
                 </table>
             <h3>3. Instruções</h3>
@@ -130,10 +130,10 @@
                         <th><b>Total</b></th>
                     </tr>
                     <tr>
-                        <td>7</td>
-                        <td>1</td>
-                        <td>4</td>
+                        <td>8</td>
                         <td>2</td>
+                        <td>3</td>
+                        <td>1</td>
                         <td>14</td>
                     </tr>
                 </table>
@@ -144,8 +144,8 @@
                         <th><b>Tipos diferentes</b></th>
                     </tr>
                     <tr>
-                        <td>2</td>
-                        <td>3</td>
+                        <td>1</td>
+                        <td>1</td>
                     </tr>
                 </table>
             <h3>5. Ifs aninhados</h3>
@@ -155,51 +155,15 @@
                         <th><b>Depois</b></th>
                     </tr>
                     <tr><td>
-					<code>if(b > 2){
-if(c == 2){
-d = a+b;
-while(z == 2){
-var z;
-var atum;
-c = 3;
-d = 1+8*9-3+c+c;
-};
+					<code>if(b < 2 or c > b){
+if(count == c){
+b = a;
 };
 };
 					</code>
 </td><td>
-					<code>if(b > 2 and c == 2){
-d = a+b;
-while(z == 2){
-var z;
-var atum;
-c = 3;
-d = 1+8*9-3+c+c;
-};
-};
-					</code>
-</td></tr><tr><td>
-					<code>if(b < 2 and a < 3){
-if(b > 2 and c == 2){
-d = a+b;
-while(z == 2){
-var z;
-var atum;
-c = 3;
-d = 1+8*9-3+c+c;
-};
-};
-};
-					</code>
-</td><td>
-					<code>if(b < 2 and a < 3 and b > 2 and c == 2){
-d = a+b;
-while(z == 2){
-var z;
-var atum;
-c = 3;
-d = 1+8*9-3+c+c;
-};
+					<code>if(b < 2 or c > b and count == c){
+b = a;
 };
 					</code>
 </td></tr>

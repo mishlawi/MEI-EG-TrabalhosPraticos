@@ -504,7 +504,7 @@ def varStatus(varS):
             sVar["DN"].append(var)        
     return sVar
 
-f = open("frase.txt", "r")
+f = open("frase3.txt", "r")
 
 frase = f.read()
 p = Lark(grammar)
