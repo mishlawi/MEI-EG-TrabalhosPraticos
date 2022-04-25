@@ -11,6 +11,7 @@ def geraRel(data):
         * {
             box-sizing: border-box;
         }
+        hr { background-color: #1a97bc; height: 1px; border: 0; }
         body {
             font-family: Arial;
             margin: 0;
@@ -21,6 +22,9 @@ def geraRel(data):
             background: #1a97bc;
             color: white;
             font-size: 15px;
+        }
+        .autores{
+            padding: 20px;
         }
         /* Create two equal columns that floats next to each other */
         .column {
@@ -55,12 +59,14 @@ def geraRel(data):
                 Relatório 
             </h1>
         </div>
-        <p><h3><b> Realizado por: </b></h3></p>
-            Angélica Cunha <i>PG47024</i>
-            <br>
-            Duarte Oliveira <i>PG47157</i>
-            <br> 
-            Tiago Barata <i>PG47695</i>
+        <div class="autores">
+            <p><h3><b> Realizado por: </b></h3></p>
+                Angélica Cunha <i>PG47024</i>
+                <br>
+                Duarte Oliveira <i>PG47157</i>
+                <br> 
+                Tiago Barata <i>PG47695</i>
+        </div>
         <hr>''' + f'''
         <h2>1. Variáveis</h2>
             <ul>
