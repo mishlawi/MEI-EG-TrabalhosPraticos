@@ -137,7 +137,9 @@ class MyInterpreter (Interpreter):
             self.totEstruturasAninh["dif"] += 1
 
         if dicionario["inst_type"][0] == 'conditional':
-            self.controloAninh[self.geraCodigoLivre(dicionario)] = self.geraCodigoSimples(dicionario)
+            livre = self.geraCodigoLivre(dicionario)
+            simples = self.geraCodigoSimples(dicionario)
+            self.controloAninh[livre] = simples
 
         return dicionario
 
@@ -512,6 +514,5 @@ data = MyInterpreter().visit(parse_tree)
 # print(data)
 
 data["vars"] = varStatus(data["vars"])
-print(data)
 
-#print(html.geraHTML(data,frase))
+html.geraRel(data)

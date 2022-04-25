@@ -2,15 +2,31 @@ def writeInFile(string):
     f = open("index.html", "w", encoding="utf-8")
     f.write(string)
     f.close
-
-def geraHTML(data,frase):
-    return geraRel(data)+geraCodigo(frase)
     
 def geraRel(data): 
-    return '''
+    string = '''
 <!DOCTYPE html>
 <html>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Create two equal columns that floats next to each other */
+        .column {
+            float: left;
+            width: 50%;
+            padding: 10px;
+            height: 300px; /* Should be removed. Only for demonstration */
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
         table, th, td {
             border: 1px solid black;
             width: 100px;
@@ -92,12 +108,22 @@ def geraRel(data):
                 </tr>
             </table>
         <h2>5. Ifs aninhados</h2>
-     ''' 
-
-def geraCodigo(frase):
-    r="""
-
+            <div class="row">
+                <div class="column">
+                    <h2>Antes</h2>'''
+    for elem in data["estruturasAninhadas"].keys():
+        string += "\t\t\t\t\t<p>" + elem + "</p>\n"
+    string += '''
+                </div>
+                <div class="column">
+                    <h2>Depois</h2>'''
+    for elem in data["estruturasAninhadas"].keys():
+        string += "\t\t\t\t\t<p>" + data["estruturasAninhadas"][elem] + "</p>\n"
+    string += '''
+                </div>
+            </div>
     </body>
-</html>
-    """
-    return r
+</html>'''
+
+    writeInFile(string)
+       
