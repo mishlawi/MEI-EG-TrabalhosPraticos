@@ -87,16 +87,16 @@
         <div class="container">
             <h3>1. Variáveis</h3>
                 <ul style="list-style-type:none">
-                    <li><b >Variáveis do programa: </b> 5 
-                            &nbsp;&nbsp;['a', 'b', 'nome', 'c', 'count'] </li>
-                    <li><b>Variáveis redeclaradas: </b> 1 
-                             &nbsp;&nbsp;['a'] </li>
-                    <li><b>Variáveis não-declaradas: </b> 2 
-                             &nbsp;&nbsp;['c', 'count'] </li>
+                    <li><b >Variáveis do programa: </b> 8 
+                            &nbsp;&nbsp;['nome', 'curso', 'check', 'dict', 'a', 'b', 'set', 'i'] </li>
+                    <li><b>Variáveis redeclaradas: </b> 0 
+                             &nbsp;&nbsp;[] </li>
+                    <li><b>Variáveis não-declaradas: </b> 7 
+                             &nbsp;&nbsp;['nome', 'curso', 'dict', 'a', 'b', 'set', 'i'] </li>
                     <li><b>Variáveis usadas, mas não inicializadas: </b> 2 
-                             &nbsp;&nbsp; ['c', 'count']</li>
-                    <li><b>Variáveis declaradas, mas nunca mencionadas: </b>1 
-                             &nbsp;&nbsp; ['nome'] </li>
+                             &nbsp;&nbsp; ['a', 'b']</li>
+                    <li><b>Variáveis declaradas, mas nunca mencionadas: </b>0 
+                             &nbsp;&nbsp; [] </li>
                 </ul>
             <h3>2. Variáveis declaradas vs. Dados estruturados</h3>
                 <table>
@@ -112,12 +112,12 @@
                         <td><b>Total</b></th>
                     </tr>
                     <tr>
-                        <td>4</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>5</td>
                     </tr>
                 </table>
             <h3>3. Instruções</h3>
@@ -130,11 +130,11 @@
                         <th><b>Total</b></th>
                     </tr>
                     <tr>
-                        <td>8</td>
+                        <td>4</td>
                         <td>2</td>
                         <td>3</td>
                         <td>1</td>
-                        <td>14</td>
+                        <td>10</td>
                     </tr>
                 </table>
             <h3>4. Estruturas de controlo aninhadas</h3>
@@ -144,8 +144,8 @@
                         <th><b>Tipos diferentes</b></th>
                     </tr>
                     <tr>
-                        <td>1</td>
-                        <td>1</td>
+                        <td>2</td>
+                        <td>0</td>
                     </tr>
                 </table>
             <h3>5. Ifs aninhados</h3>
@@ -155,15 +155,21 @@
                         <th><b>Depois</b></th>
                     </tr>
                     <tr><td>
-					<code>if(b < 2 or c > b){
-if(count == c){
-b = a;
+					<code>if(check >= 2){
+if(nome != curso){
+dict = {'x': [11, 21, 31], 'y': (12, 22, 52, [19, 9])};
+if(a+b > 3){
+set = {45, 46, 47};
+};
 };
 };
 					</code>
 </td><td>
-					<code>if(b < 2 or c > b and count == c){
-b = a;
+					<code>if(check >= 2 and nome != curso){
+dict = {'x': [11, 21, 31], 'y': (12, 22, 52, [19, 9])};
+if(a+b > 3){
+set = {45, 46, 47};
+};
 };
 					</code>
 </td></tr>

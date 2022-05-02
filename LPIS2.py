@@ -93,10 +93,10 @@ class MyInterpreter (Interpreter):
         var = self.visit_children(tree)
         return { "type" : "reapeat", "cond" : var[1], "inst_type":var[0][0], "inst" : var[0][1]}
     
-    # def ciclo3(self,tree):
-    #     #"for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
-    #     var = self.visit_children(tree)
-    #     return {"cond" : var[0], "inst" : var[1]}
+    def ciclo3(self,tree):
+        #"for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
+        var = self.visit_children(tree)
+        return { "type" : "for", "cond" : var[1], "inst_type":var[3][0], "inst" : var[3][1]}
 
     def condition(self, tree): 
         #     condition "and" condition2
