@@ -237,14 +237,20 @@ class MyInterpreter (Interpreter):
         q = tree.children[0]
         var = self.visit(tree.children[0])
         if q.data == 'atribuicao':
+            print("attt")
+            print(var)
             # print("atrib: ", var)
             self.totInst["atribuicao"]+=1
             return ("atribuicao", var)
         elif q.data == 'conditional':
+            print("cond")
+            print(var)
             # print("condi: ", var)
             self.totInst["cond"]+=1
             return ("conditional", var)
         elif q.data == 'ciclos':
+            print("ciclo")
+            print(var)
             # print("ciclo: ", var)
             self.totInst["ciclo"]+=1
             return ("ciclo", var)
@@ -403,6 +409,7 @@ define : expression
        | input
        | INT
        | STRING
+       | VAR
 
 
 // VALORES E CONTAS ELEMENTARES

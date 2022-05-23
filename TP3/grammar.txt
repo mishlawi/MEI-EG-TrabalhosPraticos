@@ -1,0 +1,147 @@
+start: instrucoes
+
+instrucoes : instrucao ";" (instrucao ";")*
+
+instrucao : declare
+          | atribuicao
+          | conditional
+          | ciclos
+          | print
+
+// CICLOS 
+
+ciclos : ciclo1
+       | ciclo2
+       | ciclo3
+
+ciclo1 : "while" "(" condition ")" "{" instrucoes "}"
+ciclo2 : "repeat" "{" instrucoes "}" "until" "(" condition ")"
+ciclo3 : "for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
+
+// LEITURA 
+print : "print" "(" VAR ")"
+
+// ESCRITA
+input : "input" "(" ")"
+
+
+// CONDICIONAL
+conditional : "if" "(" condition ")" "{" instrucoes "}" ("else" "{" instrucoes "}")? // verificar /n nestes casos é necessario?
+
+condition : condition "and" condition2
+          | condition2
+
+condition2 : condition2 "or" condition3
+           | condition3
+
+condition3 : "(" condition ")"
+           | exprel
+           | "!" condition 
+
+exprel : expression oprel expression
+
+oprel : MAIORIG
+      | MENORIG
+      | MAIOR
+      | MENOR
+      | IGUAL
+      | DIF 
+
+// ATRIBUICOES e INICIALIZACOES
+
+declare : "var" atribuicao
+        | "var" VAR
+
+atribuicao : VAR "=" define
+
+define : expression
+       | estruturas
+       | input
+       | INT
+       | STRING
+       | VAR
+
+
+// VALORES E CONTAS ELEMENTARES
+
+expression : expression PLUS conta
+           | expression MINUS conta
+           | conta
+
+conta : valor TIMES valor
+      | valor DIV valor
+      | valor MOD valor 
+      | valor
+
+valor : INT
+      | VAR
+      | "(" expression ")"
+
+// TIPOS DE ESTRUTURAS
+
+estruturas : lista
+           | tuple
+           | dicionario
+           | set
+
+// ESTRUTURAS
+
+set : "{" key ("," key) *"}"
+
+lista : "[" "]"   
+      | "[" value ("," value)* "]"
+
+
+dicionario : "{" "}"
+           | "{" key ":" value ("," key ":" value )* "}"
+
+
+tuple : "(" value ("," value)* ")" // pode ter listas e dicionarios
+
+tuplecomp : "(" key ("," key)* ")" // NAO pode ter listas e dicionarios
+
+
+
+key : (STRING | INT | tuplecomp) // tipos de estruturas/dados que são imutáveis/comparaveis
+
+value : (estruturas | STRING | INT)
+
+
+
+// TERMINAIS ELEMENTARES
+
+STRING : /\"/ (WORD|" ")* /\"/
+VAR : LETTER (LETTER | DIGIT)*
+
+
+// SINAIS RELACIONAIS
+
+MAIOR : ">"
+MAIORIG : ">="
+MENOR: "<"
+MENORIG : "<="
+IGUAL : "=="
+DIF : "!="
+
+
+// SINAIS OPERAÇÕES
+
+PLUS : "+"
+MINUS : "-"
+TIMES : "*"
+DIV : "/"
+MOD : "%"
+
+
+// IMPORTS
+
+%import common.WS
+%import common.WORD
+%import common.LETTER
+%import common.INT
+%import common.DIGIT
+
+
+// IGNORES
+
+%ignore WS
