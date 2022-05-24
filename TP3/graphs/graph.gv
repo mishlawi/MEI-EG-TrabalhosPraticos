@@ -1,11 +1,6 @@
 digraph "graph" {
-	"nome = EG" -> "nome = EG"
-	"curso = MIEI" -> "curso = MIEI"
-	"deus = var" -> "deus = var"
-	"set = {45, 46, 47}" -> "set = {45, 46, 47}"
-	"cebola = silencio" -> "cebola = silencio"
-	"if (a+b > 3)" -> fi0
-	"if (nome != curso and a+b > 3)" -> fi1
-	"if (check >= 2)" -> fi2
+	inicio -> "z = 2"
+	"z = 2" -> "if (x < 1)"
+	"if (x < 1)" -> "z = z+1"
 	inicio -> fim
 }

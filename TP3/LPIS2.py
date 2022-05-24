@@ -142,8 +142,10 @@ class MyInterpreter (Interpreter):
 
     def conditional(self, tree):
         # "if" "(" condition ")" "{" instrucoes "}" ("else" "{" instrucoes "}")?
+        
         var = self.visit_children(tree)
         dicionario = {"type": "if", "cond" : var[0], "inst_type":var[1][0], "inst" : var[1][1]}
+
         if len(tree.children) == 3:
             dicionario["else_inst_type"] = var[2][0]
             dicionario["else_inst"] = var[2][1]
@@ -157,7 +159,6 @@ class MyInterpreter (Interpreter):
             livre = self.geraCodigoLivre(dicionario)
             simples = self.geraCodigoSimples(dicionario)
             self.controloAninh[livre] = simples
-
         return dicionario
 
     def conta(self, tree):
@@ -251,25 +252,6 @@ class MyInterpreter (Interpreter):
         self.totInst["rw"]+=1
         return "input()"
 
-    def handler(self,tree):
-        info = tree.children[0]
-        var = self.visit(tree.children[0])
-        #if info.data == 'atribuicao':  
-            
-        if info.data == 'conditional':
-            print("conditional")
-            print(var)
-            word = var['type'] + ' ' + var['cond']
-            self.graph.edge(self.last,word)
-            return ("conditional", var)
-        elif info.data == 'ciclos': 
-            print("ciclo")
-            print(var)
-            self.totInst["ciclo"]+=1
-            return ("ciclo", var)
-        elif info.data == 'print':
-            print("print")
-            print(var) 
 
 # self.status = {'last': 'inicio','if': 0,'isIf': False }
     def instrucao(self,tree):
@@ -282,15 +264,18 @@ class MyInterpreter (Interpreter):
         if q.data == 'atribuicao':
 
             self.totInst["atribuicao"]+=1
-            self.status['last'] = var
+            #if (self.status['isIf']): print("IF HERE")
             self.graph.edge(self.status['last'],var)
+            self.status['last'] = var
 
             return ("atribuicao", var)
 
         if q.data == 'conditional':
 
             self.status['isIf'] = True
-            self.graph.edge((var['type']+' ('+ var['cond'] + ')'),'fi'+str(self.status['if']))
+            #self.graph.edge((var['type']+' ('+ var['cond'] + ')'),'fi'+str(self.status['if']))
+            self.graph.edge(self.status['last'],(var['type']+' ('+ var['cond'] + ')'))
+            self.status['last']=(var['type']+' ('+ var['cond'] + ')')
             self.status['if']+=1
             self.totInst["cond"]+=1
 
@@ -300,6 +285,7 @@ class MyInterpreter (Interpreter):
             #print("yoyoy")
             self.totInst["ciclo"]+=1
             return ("ciclo", var)
+
         elif q.data == 'print':
             self.totInst["rw"]+=1
             return ("print", var)
@@ -398,7 +384,7 @@ def varStatus(varS):
             sVar["DN"].append(var)        
     return sVar
 
-f = open("frase3.txt", "r")
+f = open("frase1.txt", "r")
 
 frase = f.read()
 
