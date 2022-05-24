@@ -1,6 +1,22 @@
 digraph "graph" {
-	inicio -> "z = 2"
-	"z = 2" -> "if (x < 1)"
-	"if (x < 1)" -> "z = z+1"
-	inicio -> fim
+	inicio -> "nome = \"EG\""
+	"nome = \"EG\"" -> "var curso"
+	"var curso" -> "var check"
+	"var check" -> "if check >= 2"
+	"if check >= 2" -> "deus = \"var\""
+	"deus = \"var\"" -> "if nome != curso"
+	"if nome != curso" -> "if a+b > 3"
+	"if a+b > 3" -> "set = {45, 46, 47}"
+	"if a+b > 3" -> fi3
+	"set = {45, 46, 47}" -> fi3
+	"if a+b > 3" -> "print(i)"
+	"print(i)" -> "cebola = \"silencio\""
+	"cebola = \"silencio\"" -> fi3
+	fi3 -> "atum = 1"
+	"if nome != curso" -> fi2
+	"atum = 1" -> fi2
+	fi2 -> "salsicha = 2"
+	"if check >= 2" -> fi1
+	"salsicha = 2" -> fi1
+	fi1 -> fim
 }

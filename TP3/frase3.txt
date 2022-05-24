@@ -1,5 +1,5 @@
 nome = "EG";
-curso = "MIEI";
+var curso = "MIEI";
 var check;
 if (check >= 2){
     deus = "var";
@@ -12,5 +12,7 @@ if (check >= 2){
                 cebola = "silencio";
             };
         };
+        atum = 1;
     };
+    salsicha = 2;
 };

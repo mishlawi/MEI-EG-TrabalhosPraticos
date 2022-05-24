@@ -49,7 +49,7 @@ class MyInterpreter (Interpreter):
 
     def __init__(self):
         self.graph = graphviz.Digraph('graph', filename='graph.gv')
-        self.status = {'last': 'inicio','if': 0,'isIf': False,'ifsave':[] }
+        self.status = {'if': 0, 'ifs' : 0, 'if_start' : 0}
         self.last = 'inicio'
         self.variaveis = {}  # {var: {DEC: 0, ND:False, UNI:True, DN:False}} DEC: # de declarações | ND: Não declarada | UNI : Usada mas Não Inicializada | DN : Declarada, mas não usada
         self.totVarsDec = 0
@@ -59,7 +59,6 @@ class MyInterpreter (Interpreter):
         self.controloAninh = {} # {ifAninhado : ifSolo}
 
     def start(self,tree):
-        
         self.visit(tree.children[0])
         data = {}
         data["vars"] = self.variaveis
@@ -143,23 +142,7 @@ class MyInterpreter (Interpreter):
     def conditional(self, tree):
         # "if" "(" condition ")" "{" instrucoes "}" ("else" "{" instrucoes "}")?
         
-        var = self.visit_children(tree)
-        dicionario = {"type": "if", "cond" : var[0], "inst_type":var[1][0], "inst" : var[1][1]}
-
-        if len(tree.children) == 3:
-            dicionario["else_inst_type"] = var[2][0]
-            dicionario["else_inst"] = var[2][1]
-
-        if 'conditional' in dicionario["inst_type"]:
-            self.totEstruturasAninh["mm"] += 1
-        elif 'ciclo' in dicionario["inst_type"]:
-            self.totEstruturasAninh["dif"] += 1
-
-        if dicionario["inst_type"][0] == 'conditional':
-            livre = self.geraCodigoLivre(dicionario)
-            simples = self.geraCodigoSimples(dicionario)
-            self.controloAninh[livre] = simples
-        return dicionario
+        return tree
 
     def conta(self, tree):
         # conta : valor TIMES valor
@@ -214,7 +197,7 @@ class MyInterpreter (Interpreter):
                 return int(q)
             else:
                 string = str(q)
-                return string[1:-1]
+                return string
         else:
             return self.visit(q)
 
@@ -257,43 +240,85 @@ class MyInterpreter (Interpreter):
     def instrucao(self,tree):
 
         q = tree.children[0]
-        var = self.visit(tree.children[0])
-
-        print(var)
-
+        
         if q.data == 'atribuicao':
-
+            var = self.visit(tree.children[0])
+            self.graph.edge(self.last, var)
+            self.last = var
             self.totInst["atribuicao"]+=1
             #if (self.status['isIf']): print("IF HERE")
-            self.graph.edge(self.status['last'],var)
+            # self.graph.edge(self.status['last'],var)
             self.status['last'] = var
-
+            # print("atribuicao", var)
             return ("atribuicao", var)
 
         if q.data == 'conditional':
+            self.status["if"] += 1
+            self.status["ifs"] += 1
 
-            self.status['isIf'] = True
-            #self.graph.edge((var['type']+' ('+ var['cond'] + ')'),'fi'+str(self.status['if']))
-            self.graph.edge(self.status['last'],(var['type']+' ('+ var['cond'] + ')'))
-            self.status['last']=(var['type']+' ('+ var['cond'] + ')')
-            self.status['if']+=1
+            teste = self.visit(tree.children[0])
+
+            cond = self.visit(teste.children[0])
+            self.graph.edge(self.last, 'if ' + cond)
+            self.last = 'if ' + cond
+            inst_type = self.visit(teste.children[1])
+            dicionario = {"type": "if", "cond" : cond, "inst_type":inst_type[0], "inst" : inst_type[1]}
+            self.graph.edge('if ' + cond, "fi" + str(self.status["if"]))
+            
+            self.graph.edge(self.last, "fi" + str(self.status["if"]))
+            
+
+            if len(teste.children) == 3:
+                self.last = 'if ' + cond
+                else_inst = self.visit(teste.children[2])
+                dicionario["else_inst_type"] = else_inst[0]
+                dicionario["else_inst"] = else_inst[1]
+                self.graph.edge(self.last, "fi" + str(self.status["if"]))
+
+            if 'conditional' in dicionario["inst_type"]:
+                self.totEstruturasAninh["mm"] += 1
+            elif 'ciclo' in dicionario["inst_type"]:
+                self.totEstruturasAninh["dif"] += 1
+
+            if dicionario["inst_type"][0] == 'conditional':
+                livre = self.geraCodigoLivre(dicionario)
+                simples = self.geraCodigoSimples(dicionario)
+                self.controloAninh[livre] = simples
+
+            self.last = "fi" + str(self.status["if"])
+
+            self.status["if"] -= 1
+            if self.status["if"] == self.status["if_start"]:
+                self.status["if"] = self.status["ifs"]
+                self.status["if_start"] = self.status["if"]
+         
             self.totInst["cond"]+=1
 
-            return ("conditional", var)
+            return ("conditional", dicionario)
 
         elif q.data == 'ciclos':
+            var = self.visit(tree.children[0])
             #print("yoyoy")
             self.totInst["ciclo"]+=1
+            # print ("ciclo", var)
             return ("ciclo", var)
 
         elif q.data == 'print':
+            var = self.visit(tree.children[0])
+            self.graph.edge(self.last, var)
+            self.last = var
             self.totInst["rw"]+=1
+            # print ("print", var)
             return ("print", var)
         else:
+            var = self.visit(tree.children[0])
+            self.graph.edge(self.last, var)
+            self.last = var
+            # print ("declaracao", var)
             return ("declaracao", var)
 
     def instrucoes(self,tree):
-
+        # print(tree.pretty())
         a = []
         for elem in tree.children:
             a.append(self.visit(elem))
@@ -384,7 +409,7 @@ def varStatus(varS):
             sVar["DN"].append(var)        
     return sVar
 
-f = open("frase1.txt", "r")
+f = open("frase3.txt", "r")
 
 frase = f.read()
 
