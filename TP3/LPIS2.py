@@ -86,28 +86,27 @@ class MyInterpreter (Interpreter):
 
 
     def ciclos(self, tree):
-        dicionario = self.visit(tree.children[0])
+        dicionario = self.visit(tree.children[0])[1]
         if 'conditional' in dicionario["inst_type"]:
             self.totEstruturasAninh["dif"] += 1
         elif 'ciclo' in dicionario["inst_type"]:
             self.totEstruturasAninh["mm"] += 1
-        return dicionario
-
+        return dicionario,tree
 
     def ciclo1(self, tree):
         # "while" "(" condition ")" "{" instrucoes "}"
         var = self.visit_children(tree)
-        return { "type" : "while", "cond" : var[0], "inst_type":var[1][0], "inst" : var[1][1]}
+        return tree,{ "type" : "while", "cond" : var[0], "inst_type":var[1][0], "inst" : var[1][1]}
     
     def ciclo2(self,tree):
         # "repeat" "{" instrucoes "}" "until" "(" condition ")"
         var = self.visit_children(tree)
-        return { "type" : "reapeat", "cond" : var[1], "inst_type":var[0][0], "inst" : var[0][1]}
+        return tree,{ "type" : "reapeat", "cond" : var[1], "inst_type":var[0][0], "inst" : var[0][1]}
     
     def ciclo3(self,tree):
         #"for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
         var = self.visit_children(tree)
-        return { "type" : "for", "cond" : var[1], "inst_type":var[3][0], "inst" : var[3][1]}
+        return tree,{ "type" : "for", "cond" : var[1], "inst_type":var[3][0], "inst" : var[3][1]}
 
 
     # CONDICIONAL LOGIC
@@ -242,6 +241,7 @@ class MyInterpreter (Interpreter):
         q = tree.children[0]
         
         if q.data == 'atribuicao':
+            print("att")
             var = self.visit(tree.children[0])
             self.graph.edge(self.last, var)
             self.last = var
@@ -253,21 +253,25 @@ class MyInterpreter (Interpreter):
             return ("atribuicao", var)
 
         if q.data == 'conditional':
+            print("cond")
             self.status["if"] += 1
             self.status["ifs"] += 1
 
             teste = self.visit(tree.children[0])
-
+            #print("conditional")
+            #print(teste)
+           # print(teste)
             cond = self.visit(teste.children[0])
+            #print(cond)
             self.graph.edge(self.last, 'if ' + cond)
             self.last = 'if ' + cond
             inst_type = self.visit(teste.children[1])
-            dicionario = {"type": "if", "cond" : cond, "inst_type":inst_type[0], "inst" : inst_type[1]}
             self.graph.edge('if ' + cond, "fi" + str(self.status["if"]))
             
             self.graph.edge(self.last, "fi" + str(self.status["if"]))
             
 
+            dicionario = {"type": "if", "cond" : cond, "inst_type":inst_type[0], "inst" : inst_type[1]}
             if len(teste.children) == 3:
                 self.last = 'if ' + cond
                 else_inst = self.visit(teste.children[2])
@@ -297,13 +301,47 @@ class MyInterpreter (Interpreter):
             return ("conditional", dicionario)
 
         elif q.data == 'ciclos':
-            var = self.visit(tree.children[0])
-            #print("yoyoy")
+
+            teste = self.visit(tree.children[0])[1]
+            cycle = self.visit(teste.children[0])[0]
+
+            # while
+            if cycle.data == 'ciclo1':
+                cond =self.visit(cycle.children[0])
+
+
+            # repeat ...  until (condition)           
+            if cycle.data == 'ciclo2':
+                cond = self.visit(cycle.children[1]) 
+
+            # for
+            if cycle.data == 'ciclo3':
+                if len(cycle.children)==4:
+                    # for (i = 0; i<20; i=i+1)
+                    att = self.visit(cycle.children[0])
+                    cond = self.visit(cycle.children[1])
+                    inc = self.visit(cycle.children[2])
+                elif len(cycle.children)==3:
+                    # for (; cond ; inc)
+                    if cycle.children[0].data=='condition':
+                        att = ''
+                        cond = self.visit(cycle.children[0])
+                        inc = self.visit(cycle.children[1])
+                    # for (x = 4; cond; )
+                    if cycle.children[0].data=='declare' or cycle.children[0].data=='atribuicao':
+                        att = self.visit(cycle.children[0])
+                        cond = self.visit(cycle.children[1])
+                        inc = ''
+                loop = 'for' + ' (' + att + ' ;' + cond + ' ;' + inc + ')' 
+                self.graph.edge(self.last,loop)
+                self.last = loop
+                print(loop)
+            
             self.totInst["ciclo"]+=1
-            # print ("ciclo", var)
-            return ("ciclo", var)
+            return ("ciclo", teste)
 
         elif q.data == 'print':
+            print("print")
             var = self.visit(tree.children[0])
             self.graph.edge(self.last, var)
             self.last = var

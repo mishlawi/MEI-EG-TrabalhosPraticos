@@ -11,7 +11,10 @@ digraph "graph" {
 	"set = {45, 46, 47}" -> fi3
 	"if a+b > 3" -> "print(i)"
 	"print(i)" -> "cebola = \"silencio\""
-	"cebola = \"silencio\"" -> fi3
+	"cebola = \"silencio\"" -> "print(i)"
+	"print(i)" -> "cebola = \"silencio\""
+	"cebola = \"silencio\"" -> "for (i = 1 ;i < 20 ;i = i+1)"
+	"for (i = 1 ;i < 20 ;i = i+1)" -> fi3
 	fi3 -> "atum = 1"
 	"if nome != curso" -> fi2
 	"atum = 1" -> fi2
