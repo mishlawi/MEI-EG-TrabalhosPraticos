@@ -50,7 +50,8 @@ class MyInterpreter (Interpreter):
 
     def __init__(self):
         self.graph = graphviz.Digraph('graph', filename='graph.gv')
-        self.status = {'if': 0, 'ifs' : 0, 'if_start' : 0}
+        self.graph.node("inicio", style="filled", fillcolor="chartreuse3")
+        self.status = {'if': 0, 'ifs' : 0, 'if_start' : 0, 'label' : ""}
         self.last = 'inicio'
         self.variaveis = {}  # {var: {DEC: 0, ND:False, UNI:True, DN:False}} DEC: # de declarações | ND: Não declarada | UNI : Usada mas Não Inicializada | DN : Declarada, mas não usada
         self.totVarsDec = 0
@@ -69,6 +70,7 @@ class MyInterpreter (Interpreter):
         data["#inst"] = self.totInst
         data["#estruturasAninh"] = self.totEstruturasAninh
         data["estruturasAninhadas"] = self.controloAninh
+        self.graph.node("fim", style="filled", fillcolor="crimson")
         self.graph.edge(self.last,'fim')
         self.graph.render(directory='graphs',view=False)
         #self.graph.view()
@@ -86,7 +88,8 @@ class MyInterpreter (Interpreter):
             self.variaveis[str(q)]["DN"] = False
         var =  str(q) + ' = ' + str(next)
 
-        self.graph.edge(self.last, var)
+        self.graph.edge(self.last, var, label = self.status["label"])
+        self.status["label"] = ""
         self.last = var
         self.status['last'] = var
 
@@ -95,30 +98,72 @@ class MyInterpreter (Interpreter):
         
     # CICLOS
     def ciclos(self, tree):
-        dicionario = self.visit(tree.children[0])[1]
+        dicionario = self.visit(tree.children[0])
         if 'conditional' in dicionario["inst_type"]:
             self.totEstruturasAninh["dif"] += 1
         elif 'ciclo' in dicionario["inst_type"]:
             self.totEstruturasAninh["mm"] += 1
         return dicionario
 
+
     # WHILE
     def ciclo1(self, tree):
         # "while" "(" condition ")" "{" instrucoes "}"
-        var = self.visit_children(tree)
-        return tree,{ "type" : "while", "cond" : var[0], "inst_type":var[1][0], "inst" : var[1][1]}
+       
     
+        cond = self.visit(tree.children[0])
+        self.graph.node('if ' + cond, shape="diamond")
+        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.status["label"] = "then"
+        self.last = 'if ' + cond
+
+        inst = self.visit(tree.children[1])
+
+        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.last = 'if ' + cond
+        self.status["label"] = "else"
+
+        return { "type" : "while", "cond" : cond, "inst_type": inst[0], "inst" : inst[1]}
+    
+
     # REPEAT..UNTIL
     def ciclo2(self,tree):
         # "repeat" "{" instrucoes "}" "until" "(" condition ")"
-        var = self.visit_children(tree)
-        return tree,{ "type" : "reapeat", "cond" : var[1], "inst_type":var[0][0], "inst" : var[0][1]}
+        
+        start = self.last
+
+        inst = self.visit(tree.children[0])
+        cond = self.visit(tree.children[1])
+        self.graph.node('if ' + cond, shape="diamond")
+        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.graph.edge('if ' + cond, start, label = "then")
+        self.status["label"] = "else"
+        self.last = 'if ' + cond
+
+
+        return { "type" : "reapeat", "cond" : cond, "inst_type": inst[0], "inst" : inst[1]}
     
+
     # FOR
     def ciclo3(self,tree):
         #"for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
-        var = self.visit_children(tree)
-        return tree,{ "type" : "for", "cond" : var[1], "inst_type":var[3][0], "inst" : var[3][1]}
+
+        self.visit(tree.children[0])
+        
+        cond = self.visit(tree.children[1])
+        self.graph.node('if ' + cond, shape="diamond")
+        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.status["label"] = "then"
+        self.last = 'if ' + cond
+
+        inst = self.visit(tree.children[3])
+
+        self.visit(tree.children[2])
+        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.last = 'if ' + cond
+        self.status["label"] = "else"
+        
+        return { "type" : "for", "cond" : cond, "inst_type":inst[0], "inst" :inst[1]}
 
 
     # CONDICIONAL AND
@@ -131,6 +176,7 @@ class MyInterpreter (Interpreter):
         else:
             return self.visit(q[0]) + ' and ' + self.visit(q[1])
 
+
     # CONDICIONAL OR
     def condition2(self,tree):
         # condition2 "or" condition3
@@ -141,6 +187,7 @@ class MyInterpreter (Interpreter):
         else:
             return self.visit(q[0]) + ' or ' + self.visit(q[1])
 
+
     # CONDITIONAL REL
     def condition3(self, tree): 
         # "(" condition ")"
@@ -148,6 +195,7 @@ class MyInterpreter (Interpreter):
         #    | "!" condition 
         q = tree.children
         return self.visit(q[0])
+
 
     # CONDITIONAL 
     def conditional(self, tree):
@@ -157,8 +205,10 @@ class MyInterpreter (Interpreter):
         self.status["ifs"] += 1
         cond = self.visit(tree.children[0])
         self.graph.node('if ' + cond, shape="diamond")
-        self.graph.edge(self.last, 'if ' + cond)
+        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.status["label"] = ""
         self.last = 'if ' + cond
+        self.status["label"] = "then"
         inst_type = self.visit(tree.children[1])
         
         self.graph.edge(self.last, "fi" + str(self.status["if"]))
@@ -167,12 +217,13 @@ class MyInterpreter (Interpreter):
         dicionario = {"type": "if", "cond" : cond, "inst_type":inst_type[0], "inst" : inst_type[1]}
         if len(tree.children) == 3:
             self.last = 'if ' + cond
+            self.status["label"] = "else"
             else_inst = self.visit(tree.children[2])
             dicionario["else_inst_type"] = else_inst[0]
             dicionario["else_inst"] = else_inst[1]
-            self.graph.edge(self.last, "fi" + str(self.status["if"]))
+            self.graph.edge(self.last, "fi" + str(self.status["if"]), label = self.status["label"])
         else:
-            self.graph.edge('if ' + cond, "fi" + str(self.status["if"]))
+            self.graph.edge('if ' + cond, "fi" + str(self.status["if"]), label = "else")
 
         if 'conditional' in dicionario["inst_type"]:
             self.totEstruturasAninh["mm"] += 1
@@ -233,7 +284,8 @@ class MyInterpreter (Interpreter):
 
         var = 'var ' + str(var)
 
-        self.graph.edge(self.last, var)
+        self.graph.edge(self.last, var, label = self.status["label"])
+        self.status["label"] = ""
         self.last = var
 
         return var
@@ -339,7 +391,8 @@ class MyInterpreter (Interpreter):
         self.totInst["rw"]+=1
         var =  "print(" + str(q[0]) + ")"
 
-        self.graph.edge(self.last, var)
+        self.graph.edge(self.last, var, label = self.status["label"])
+        self.status["label"] = ""
         self.last = var
 
         return var

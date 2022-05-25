@@ -1,27 +1,32 @@
 digraph "graph" {
-	inicio -> "nome = \"EG\""
-	"nome = \"EG\"" -> "curso = \"MIEI\""
-	"curso = \"MIEI\"" -> "var curso"
-	"var curso" -> "var check"
+	inicio [fillcolor=chartreuse3 style=filled]
+	inicio -> "nome = \"EG\"" [label=""]
+	"nome = \"EG\"" -> "curso = \"MIEI\"" [label=""]
+	"curso = \"MIEI\"" -> "var curso" [label=""]
+	"var curso" -> "var check" [label=""]
 	"if check >= 2" [shape=diamond]
-	"var check" -> "if check >= 2"
-	"if check >= 2" -> "deus = \"var\""
+	"var check" -> "if check >= 2" [label=""]
+	"if check >= 2" -> "deus = \"var\"" [label=then]
 	"if nome != curso" [shape=diamond]
-	"deus = \"var\"" -> "if nome != curso"
+	"deus = \"var\"" -> "if nome != curso" [label=""]
 	"if a+b > 3" [shape=diamond]
-	"if nome != curso" -> "if a+b > 3"
-	"if a+b > 3" -> "set = {45, 46, 47}"
+	"if nome != curso" -> "if a+b > 3" [label=then]
+	"if a+b > 3" -> "set = {45, 46, 47}" [label=then]
 	"set = {45, 46, 47}" -> fi3
-	"if a+b > 3" -> "i = 1"
-	"i = 1" -> "i = i+1"
-	"i = i+1" -> "print(i)"
-	"print(i)" -> "cebola = \"silencio\""
-	"cebola = \"silencio\"" -> fi3
-	fi3 -> "atum = 1"
+	"if a+b > 3" -> "i = 1" [label=else]
+	"if i < 20" [shape=diamond]
+	"i = 1" -> "if i < 20" [label=""]
+	"if i < 20" -> "print(i)" [label=then]
+	"print(i)" -> "cebola = \"silencio\"" [label=""]
+	"cebola = \"silencio\"" -> "i = i+1" [label=""]
+	"i = i+1" -> "if i < 20" [label=""]
+	"if i < 20" -> fi3 [label=else]
+	fi3 -> "atum = 1" [label=else]
 	"atum = 1" -> fi2
-	"if nome != curso" -> fi2
-	fi2 -> "salsicha = 2"
+	"if nome != curso" -> fi2 [label=else]
+	fi2 -> "salsicha = 2" [label=""]
 	"salsicha = 2" -> fi1
-	"if check >= 2" -> fi1
+	"if check >= 2" -> fi1 [label=else]
+	fim [fillcolor=crimson style=filled]
 	fi1 -> fim
 }
