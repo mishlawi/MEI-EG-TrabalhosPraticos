@@ -68,6 +68,12 @@ def geraRel(data):
         th, td {
           padding: 15px;
         }
+        .center {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 20%;
+        }
       </style>
     <head>
         <title>EG - TP2</title>
@@ -167,7 +173,9 @@ def geraRel(data):
     string += '''
                     </tr>
                 </table>
-                 </div>
+                <h3>6. Control Flow Graph</h3>
+                <img src = "./graphs/graph.gv.png" alt = "CFG" class="center"/>
+                </div>
              </div>
         </div>
     </body>
