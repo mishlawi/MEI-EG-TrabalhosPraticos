@@ -49,7 +49,7 @@ class MyInterpreter (Interpreter):
     # DN : Declarada, mas não usada
 
     def __init__(self):
-        self.graph = graphviz.Digraph('graph', filename='graph.gv')
+        self.graph = graphviz.Digraph('graph', filename='graph.gv', format="png")
         self.graph.node("inicio", style="filled", fillcolor="chartreuse3")
         self.status = {'if': 0, 'ifs' : 0, 'if_start' : 0, 'label' : ""}
         self.last = 'inicio'
