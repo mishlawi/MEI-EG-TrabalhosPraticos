@@ -51,7 +51,7 @@ class MyInterpreter (Interpreter):
     def __init__(self):
         self.graph = graphviz.Digraph('graph', filename='graph.gv', format="png")
         self.graph.node("inicio", style="filled", fillcolor="chartreuse3")
-        self.status = {'if': 0, 'ifs' : 0, 'if_start' : 0, 'label' : ""}
+        self.status = {'if': 0, 'ifs' : 0, 'if_start' : 0, 'label' : "", "dec" : False, "#nodos" : 2 , "#edges" : 1}
         self.last = 'inicio'
         self.variaveis = {}  # {var: {DEC: 0, ND:False, UNI:True, DN:False}} DEC: # de declarações | ND: Não declarada | UNI : Usada mas Não Inicializada | DN : Declarada, mas não usada
         self.totVarsDec = 0
@@ -74,6 +74,7 @@ class MyInterpreter (Interpreter):
         self.graph.edge(self.last,'fim')
         self.graph.render(directory='graphs',view=False)
         #self.graph.view()
+        data["complex"] = self.status["#edges"] - self.status["#nodos"] + 2
         return data
 
 
@@ -88,10 +89,13 @@ class MyInterpreter (Interpreter):
             self.variaveis[str(q)]["DN"] = False
         var =  str(q) + ' = ' + str(next)
 
-        self.graph.edge(self.last, var, label = self.status["label"])
-        self.status["label"] = ""
-        self.last = var
-        self.status['last'] = var
+        if self.status["dec"] == False:
+            self.graph.edge(self.last, var, label = self.status["label"])
+            self.status["label"] = ""
+            self.last = var
+            self.status['last'] = var
+            self.status["#nodos"] += 1
+            self.status["#edges"] += 1
 
         return var
 
@@ -112,16 +116,19 @@ class MyInterpreter (Interpreter):
        
     
         cond = self.visit(tree.children[0])
-        self.graph.node('if ' + cond, shape="diamond")
-        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.graph.node('while ' + cond, shape="diamond")
+        self.graph.edge(self.last, 'while ' + cond, label = self.status["label"])
         self.status["label"] = "then"
-        self.last = 'if ' + cond
+        self.last = 'while ' + cond
 
         inst = self.visit(tree.children[1])
 
-        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
-        self.last = 'if ' + cond
+        self.graph.edge(self.last, 'while ' + cond, label = self.status["label"])
+        self.last = 'while ' + cond
         self.status["label"] = "else"
+
+        self.status["#nodos"] += 1
+        self.status["#edges"] += 2
 
         return { "type" : "while", "cond" : cond, "inst_type": inst[0], "inst" : inst[1]}
     
@@ -130,16 +137,21 @@ class MyInterpreter (Interpreter):
     def ciclo2(self,tree):
         # "repeat" "{" instrucoes "}" "until" "(" condition ")"
         
-        start = self.last
+        self.graph.edge(self.last, 'repeat', label = self.status["label"])
+        self.last = 'repeat'
+
+
 
         inst = self.visit(tree.children[0])
         cond = self.visit(tree.children[1])
-        self.graph.node('if ' + cond, shape="diamond")
-        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
-        self.graph.edge('if ' + cond, start, label = "then")
+        self.graph.node('until ' + cond, shape="diamond")
+        self.graph.edge(self.last, 'until ' + cond, label = self.status["label"])
+        self.graph.edge('until ' + cond, 'repeat', label = "then")
         self.status["label"] = "else"
-        self.last = 'if ' + cond
+        self.last = 'until ' + cond
 
+        self.status["#nodos"] += 2
+        self.status["#edges"] += 3
 
         return { "type" : "reapeat", "cond" : cond, "inst_type": inst[0], "inst" : inst[1]}
     
@@ -148,21 +160,70 @@ class MyInterpreter (Interpreter):
     def ciclo3(self,tree):
         #"for" "(" (declare | atribuicao )? ";" condition ";" atribuicao? ")" "{" instrucoes "}"
 
-        self.visit(tree.children[0])
-        
-        cond = self.visit(tree.children[1])
-        self.graph.node('if ' + cond, shape="diamond")
-        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
-        self.status["label"] = "then"
-        self.last = 'if ' + cond
+        if len(tree.children) == 4:
+            self.visit(tree.children[0])
+            
+            cond = self.visit(tree.children[1])
+            self.graph.node('for ' + cond, shape="diamond")
+            self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+            self.status["label"] = "then"
+            self.last = 'for ' + cond
 
-        inst = self.visit(tree.children[3])
+            inst = self.visit(tree.children[3])
 
-        self.visit(tree.children[2])
-        self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
-        self.last = 'if ' + cond
-        self.status["label"] = "else"
+            self.visit(tree.children[2])
+            self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+            self.last = 'for ' + cond
+            self.status["label"] = "else"
+
+            self.status["#nodos"] += 1
+            self.status["#edges"] += 2
+        elif len(tree.children) == 2:
+            cond = self.visit(tree.children[0])
+            self.graph.node('for ' + cond, shape="diamond")
+            self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+            self.status["label"] = "then"
+            self.last = 'for ' + cond
+
+            inst = self.visit(tree.children[1])
+
+            self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+            self.last = 'for ' + cond
+            self.status["label"] = "else"
+            self.status["#nodos"] += 1
+            self.status["#edges"] += 2
+        else:
+            if tree.children[0].data == 'declare' or tree.children[0].data == 'atribuicao':
+                self.visit(tree.children[0])
+            
+                cond = self.visit(tree.children[1])
+                self.graph.node('for ' + cond, shape="diamond")
+                self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+                self.status["label"] = "then"
+                self.last = 'for ' + cond
+
+                inst = self.visit(tree.children[2])
+
+                self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+                self.last = 'for ' + cond
+                self.status["label"] = "else"
+            else:            
+                cond = self.visit(tree.children[0])
+                self.graph.node('for ' + cond, shape="diamond")
+                self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+                self.status["label"] = "then"
+                self.last = 'for ' + cond
+
+                inst = self.visit(tree.children[2])
+
+                self.visit(tree.children[1])
+                self.graph.edge(self.last, 'for ' + cond, label = self.status["label"])
+                self.last = 'for ' + cond
+                self.status["label"] = "else"
+            self.status["#nodos"] += 1
+            self.status["#edges"] += 2
         
+
         return { "type" : "for", "cond" : cond, "inst_type":inst[0], "inst" :inst[1]}
 
 
@@ -200,9 +261,8 @@ class MyInterpreter (Interpreter):
     # CONDITIONAL 
     def conditional(self, tree):
         # "if" "(" condition ")" "{" instrucoes "}" ("else" "{" instrucoes "}")?
-        
         self.status["if"] += 1
-        self.status["ifs"] += 1
+        if_number = self.status["if"]
         cond = self.visit(tree.children[0])
         self.graph.node('if ' + cond, shape="diamond")
         self.graph.edge(self.last, 'if ' + cond, label = self.status["label"])
@@ -211,7 +271,7 @@ class MyInterpreter (Interpreter):
         self.status["label"] = "then"
         inst_type = self.visit(tree.children[1])
         
-        self.graph.edge(self.last, "fi" + str(self.status["if"]))
+        self.graph.edge(self.last, "fi" + str(if_number))
         
 
         dicionario = {"type": "if", "cond" : cond, "inst_type":inst_type[0], "inst" : inst_type[1]}
@@ -221,9 +281,9 @@ class MyInterpreter (Interpreter):
             else_inst = self.visit(tree.children[2])
             dicionario["else_inst_type"] = else_inst[0]
             dicionario["else_inst"] = else_inst[1]
-            self.graph.edge(self.last, "fi" + str(self.status["if"]), label = self.status["label"])
+            self.graph.edge(self.last, "fi" + str(if_number), label = self.status["label"])
         else:
-            self.graph.edge('if ' + cond, "fi" + str(self.status["if"]), label = "else")
+            self.graph.edge('if ' + cond, "fi" + str(if_number), label = "else")
 
         if 'conditional' in dicionario["inst_type"]:
             self.totEstruturasAninh["mm"] += 1
@@ -235,12 +295,10 @@ class MyInterpreter (Interpreter):
             simples = self.geraCodigoSimples(dicionario)
             self.controloAninh[livre] = simples
 
-        self.last = "fi" + str(self.status["if"])
+        self.last = "fi" + str(if_number)
 
-        self.status["if"] -= 1
-        if self.status["if"] == self.status["if_start"]:
-            self.status["if"] = self.status["ifs"]
-            self.status["if_start"] = self.status["if"]
+        self.status["#nodos"] += 2
+        self.status["#edges"] += 3
 
         return dicionario
 
@@ -268,6 +326,7 @@ class MyInterpreter (Interpreter):
         self.totVarsDec += 1
         var = tree.children[0]
         if not isinstance(var, Token):
+            self.status["dec"] = True
             q = self.visit(var)
             var = q.split(' =')[0]
             self.totInst["atribuicao"] += 1
@@ -283,10 +342,19 @@ class MyInterpreter (Interpreter):
             self.variaveis[str(var)]["DEC"] += 1
 
         var = 'var ' + str(var)
-
-        self.graph.edge(self.last, var, label = self.status["label"])
-        self.status["label"] = ""
-        self.last = var
+        
+        if self.status['dec'] == False:
+            self.graph.edge(self.last, var, label = self.status["label"])
+            self.status["label"] = ""
+            self.last = var
+        else:
+            self.graph.edge(self.last, 'var ' + q, label = self.status["label"])
+            self.status["label"] = ""
+            self.last = 'var ' + q
+            self.status["dec"] = False
+        
+        self.status["#nodos"] += 1
+        self.status["#edges"] += 1
 
         return var
 
@@ -394,6 +462,9 @@ class MyInterpreter (Interpreter):
         self.graph.edge(self.last, var, label = self.status["label"])
         self.status["label"] = ""
         self.last = var
+        self.status["#nodos"] += 1
+        self.status["#edges"] += 1
+        
 
         return var
 

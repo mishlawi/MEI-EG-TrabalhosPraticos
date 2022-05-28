@@ -7,11 +7,13 @@ if (check >= 2){
         if (a + b > 3){
             set = {45,47,46};
         }else{
-            for (i=1;i<20;i=i+1){
+            for(;i<20;i=i+1) {
                 print(i);
                 cebola = "silencio";
             };
+            teste = 10;
         };
+        
         atum = 1;
     };
     salsicha = 2;
