@@ -77,6 +77,8 @@ class MyInterpreter (Interpreter):
         self.sdg.render(directory='graphs',view=False)
         #self.cfg.view()
         data["complex"] = self.status["#edges"] - self.status["#nodos"] + 2
+        data["#edges"] = self.status["#edges"]
+        data["#nodos"] = self.status["#nodos"]
         return data
 
 
