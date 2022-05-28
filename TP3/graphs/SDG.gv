@@ -1,25 +1,25 @@
 digraph SDG {
 	ENTRY [fillcolor=chartreuse3 shape=box style=filled]
-	ENTRY -> "nome = \"EG\""
-	ENTRY -> "var curso = \"MIEI\""
-	ENTRY -> "var check"
-	ENTRY -> "if check >= 2"
-	"if check >= 2" -> then1
-	then1 -> "deus = \"var\""
-	then1 -> "if nome != curso"
-	"if nome != curso" -> then2
-	then2 -> "if a+b > 3"
-	"if a+b > 3" -> then3
-	then3 -> "set = {45, 46, 47}"
-	"if a+b > 3" -> else3
-	else3 -> "i = 0"
-	else3 -> "for i < 20"
-	"for i < 20" -> "print(i)"
-	"for i < 20" -> "cebola = \"silencio\""
-	else3 -> "teste = 10"
-	else3 -> "if b == 2"
-	"if b == 2" -> then4
-	then4 -> "print(b)"
-	then2 -> "atum = 1"
-	then1 -> "salsicha = 2"
+	ENTRY -> "var a = 4"
+	ENTRY -> "var c = 8"
+	ENTRY -> "lista = [1, 2, 3, 4]"
+	ENTRY -> "if a > 5"
+	"if a > 5" -> then1
+	then1 -> "while banana > 3"
+	"while banana > 3" -> "if b < 2 and a < 3"
+	"if b < 2 and a < 3" -> then2
+	then2 -> "if b > 2"
+	"if b > 2" -> then3
+	then3 -> "if c == 2"
+	"if c == 2" -> then4
+	then4 -> "d = a+b"
+	then4 -> "while z == 2"
+	"while z == 2" -> "var z"
+	"while z == 2" -> "var const = \"a simple string\""
+	"while z == 2" -> "c = 3"
+	"while z == 2" -> "d = 1+8*9-3+c+c"
+	"if a > 5" -> else1
+	else1 -> "var a = [1, 2, 3, 4, {'x'; [11, 21, 31], 'y'; (12, 22, 52, [19, 9])}]"
+	else1 -> "b = 4"
+	else1 -> "c = input()"
 }

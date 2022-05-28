@@ -109,14 +109,14 @@
         <div class="container" style="margin-bottom: 20px;">
             <h3>1. Variáveis</h3>
                 <ul style="list-style-type:none">
-                    <li><b >Variáveis do programa: </b> 12 
-                            &nbsp;&nbsp;['nome', 'curso', 'check', 'deus', 'a', 'b', 'set', 'i', 'cebola', 'teste', 'atum', 'salsicha'] </li>
-                    <li><b>Variáveis redeclaradas: </b> 0 
-                             &nbsp;&nbsp;[] </li>
-                    <li><b>Variáveis não-declaradas: </b> 10 
-                             &nbsp;&nbsp;['nome', 'deus', 'a', 'b', 'set', 'i', 'cebola', 'teste', 'atum', 'salsicha'] </li>
-                    <li><b>Variáveis usadas, mas não inicializadas: </b> 2 
-                             &nbsp;&nbsp; ['a', 'b']</li>
+                    <li><b >Variáveis do programa: </b> 8 
+                            &nbsp;&nbsp;['a', 'c', 'lista', 'banana', 'b', 'd', 'z', 'const'] </li>
+                    <li><b>Variáveis redeclaradas: </b> 1 
+                             &nbsp;&nbsp;['a'] </li>
+                    <li><b>Variáveis não-declaradas: </b> 5 
+                             &nbsp;&nbsp;['lista', 'banana', 'b', 'd', 'z'] </li>
+                    <li><b>Variáveis usadas, mas não inicializadas: </b> 3 
+                             &nbsp;&nbsp; ['banana', 'b', 'z']</li>
                     <li><b>Variáveis declaradas, mas nunca mencionadas: </b>0 
                              &nbsp;&nbsp; [] </li>
                 </ul>
@@ -134,12 +134,12 @@
                         <td><b>Total</b></th>
                     </tr>
                     <tr>
-                        <td>2</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
+                        <td>5</td>
                         <td>1</td>
+                        <td>4</td>
                         <td>1</td>
+                        <td>0</td>
+                        <td>6</td>
                     </tr>
                 </table>
             <h3>3. Instruções</h3>
@@ -152,10 +152,10 @@
                         <th><b>Total</b></th>
                     </tr>
                     <tr>
-                        <td>8</td>
-                        <td>4</td>
-                        <td>4</td>
+                        <td>10</td>
                         <td>1</td>
+                        <td>4</td>
+                        <td>2</td>
                         <td>17</td>
                     </tr>
                 </table>
@@ -167,7 +167,7 @@
                     </tr>
                     <tr>
                         <td>2</td>
-                        <td>0</td>
+                        <td>3</td>
                     </tr>
                 </table>
             <h3>5. Ifs aninhados</h3>
@@ -177,16 +177,51 @@
                         <th><b>Depois</b></th>
                     </tr>
                     <tr><td>
-					<code>if(nome != curso){
-if(a+b > 3){
-set = {45, 46, 47};
+					<code>if(b > 2){
+if(c == 2){
+d = a+b;
+while(z == 2){
+var z;
+var const;
+c = 3;
+d = 1+8*9-3+c+c;
 };
-atum = 1;
+};
 };
 					</code>
 </td><td>
-					<code>if(nome != curso and a+b > 3){
-set = {45, 46, 47};
+					<code>if(b > 2 and c == 2){
+d = a+b;
+while(z == 2){
+var z;
+var const;
+c = 3;
+d = 1+8*9-3+c+c;
+};
+};
+					</code>
+</td></tr><tr><td>
+					<code>if(b < 2 and a < 3){
+if(b > 2 and c == 2){
+d = a+b;
+while(z == 2){
+var z;
+var const;
+c = 3;
+d = 1+8*9-3+c+c;
+};
+};
+};
+					</code>
+</td><td>
+					<code>if(b < 2 and a < 3 and b > 2 and c == 2){
+d = a+b;
+while(z == 2){
+var z;
+var const;
+c = 3;
+d = 1+8*9-3+c+c;
+};
 };
 					</code>
 </td></tr>
@@ -195,22 +230,22 @@ set = {45, 46, 47};
                 <h3>6. Gráficos de Análise de Código</h3>
                 <table>
                     <tr>
-                        <th><a href="frase3.txt" target="_blank"  style="color: inherit;"><b>Código</b></a></th>
+                        <th><a href="frase4.txt" target="_blank"  style="color: inherit;"><b>Código</b></a></th>
                         <th><b>CFG</b></th>
                         <th><b>SDG</b></th>
                     </tr>
                      <tr>
-                        <td style="height:200px;"><object data="frase3.txt" style="width: -webkit-fill-available;height: -webkit-fill-available;"></object></td>
+                        <td style="height:200px;"><object data="frase4.txt" style="width: -webkit-fill-available;height: -webkit-fill-available;"></object></td>
                         <td><a href="./graphs/CFG.gv.png" target="_blank"><img src = "./graphs/CFG.gv.png" alt = "CFG" style="width:80%;"/></a></td>
                         <td><a href="./graphs/SDG.gv.png" target="_blank"><img src = "./graphs/SDG.gv.png" alt = "SDG" style="width:80%;"/></a></td>
                     </tr>
                 </table>
                 <h3>7. Complexidade de McCabe's</h3>
-                <p>A Complexidade de McCabe's é 6 pois: </p>
-                <p>Número de Arestas: 27</p>
+                <p>A Complexidade de McCabe's é 7 pois: </p>
+                <p>Número de Arestas: 28</p>
                 <p>Número de Vértices: 23</p>
                 <p>Logo, aplicando a fórmula de complexidade <b>Arestas - Vértices + 2 </b> obtemos:</p>
-                <p  style="margin-left: 200px;"> A - V + 2 = 27 - 23 + 2 = 6</p>
+                <p  style="margin-left: 200px;"> A - V + 2 = 28 - 23 + 2 = 7</p>
 
              </div>
              <div class="footer">.</div>

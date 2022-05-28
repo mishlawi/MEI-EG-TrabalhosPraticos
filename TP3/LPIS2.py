@@ -4,6 +4,7 @@ from lark import Lark,Token
 from lark.tree import pydot__tree_to_png
 from lark.visitors import Interpreter
 import graphviz
+from re import *
 
 import geraHTML as html
 
@@ -94,11 +95,12 @@ class MyInterpreter (Interpreter):
         var =  str(q) + ' = ' + str(next)
 
         if self.status["dec"] == False:
-            self.cfg.edge(self.last, var, label = self.status["label"])
-            self.sdg.edge(self.status["ENTRY"], var)
+            node = sub(r':', ';', var)
+            self.cfg.edge(self.last, node, label = self.status["label"])
+            self.sdg.edge(self.status["ENTRY"], node)
             self.status["label"] = ""
-            self.last = var
-            self.status['last'] = var
+            self.last = node
+            self.status['last'] = node
             self.status["#nodos"] += 1
             self.status["#edges"] += 1
 
@@ -139,7 +141,6 @@ class MyInterpreter (Interpreter):
         self.status["#edges"] += 2
         
         self.status["ENTRY"] = last_entry
-        print(last_entry)
 
         return { "type" : "while", "cond" : cond, "inst_type": inst[0], "inst" : inst[1]}
     
@@ -385,15 +386,17 @@ class MyInterpreter (Interpreter):
         var = 'var ' + str(var)
         
         if self.status['dec'] == False:
-            self.cfg.edge(self.last, var, label = self.status["label"])
-            self.sdg.edge(self.status["ENTRY"], var)
+            node = sub(r':', ';', var)
+            self.cfg.edge(self.last, node, label = self.status["label"])
+            self.sdg.edge(self.status["ENTRY"], node)
             self.status["label"] = ""
-            self.last = var
+            self.last = node
         else:
-            self.cfg.edge(self.last, 'var ' + q, label = self.status["label"])
-            self.sdg.edge(self.status["ENTRY"], 'var ' + q)
+            node = 'var ' + sub(r':', ';', q)
+            self.cfg.edge(self.last, node, label = self.status["label"])
+            self.sdg.edge(self.status["ENTRY"], node)
             self.status["label"] = ""
-            self.last = 'var ' + q
+            self.last = node
             self.status["dec"] = False
         
         self.status["#nodos"] += 1
@@ -549,8 +552,8 @@ class MyInterpreter (Interpreter):
         q = tree.children[0]
         if isinstance(q,Token):
             if q.type == "STRING":
-                string = str(q)
-                return string[1:-1]
+                string = str(q)[1:-1]
+                return string
             else:
                 return int(q)
         else:
@@ -588,7 +591,7 @@ def varStatus(varS):
             sVar["DN"].append(var)        
     return sVar
 
-filename = "frase3.txt"
+filename = "frase4.txt"
 f = open(filename, "r")
 
 frase = f.read()
