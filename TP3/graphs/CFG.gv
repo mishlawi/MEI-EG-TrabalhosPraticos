@@ -1,8 +1,8 @@
 digraph CFG {
 	inicio [fillcolor=chartreuse3 style=filled]
-	inicio -> "var a = 4" [label=""]
-	"var a = 4" -> "var c = 8" [label=""]
-	"var c = 8" -> "lista = [1, 2, 3, 4]" [label=""]
+	inicio -> "\"var a = 4\"" [label=""]
+	"\"var a = 4\"" -> "\"var c = 8\"" [label=""]
+	"\"var c = 8\"" -> "lista = [1, 2, 3, 4]" [label=""]
 	"if a > 5" [shape=diamond]
 	"lista = [1, 2, 3, 4]" -> "if a > 5" [label=""]
 	"while banana > 3" [shape=diamond]
@@ -17,8 +17,8 @@ digraph CFG {
 	"while z == 2" [shape=diamond]
 	"d = a+b" -> "while z == 2" [label=""]
 	"while z == 2" -> "var z" [label=then]
-	"var z" -> "var const = \"a simple string\"" [label=""]
-	"var const = \"a simple string\"" -> "c = 3" [label=""]
+	"var z" -> "\"var const = \"a simple string\"\"" [label=""]
+	"\"var const = \"a simple string\"\"" -> "c = 3" [label=""]
 	"c = 3" -> "d = 1+8*9-3+c+c" [label=""]
 	"d = 1+8*9-3+c+c" -> "while z == 2" [label=""]
 	"while z == 2" -> fi4
@@ -29,8 +29,8 @@ digraph CFG {
 	"if b < 2 and a < 3" -> fi2 [label=else]
 	fi2 -> "while banana > 3" [label=else]
 	"while banana > 3" -> fi1
-	"if a > 5" -> "var a = [1, 2, 3, 4, {'x'; [11, 21, 31], 'y'; (12, 22, 52, [19, 9])}]" [label=else]
-	"var a = [1, 2, 3, 4, {'x'; [11, 21, 31], 'y'; (12, 22, 52, [19, 9])}]" -> "b = 4" [label=""]
+	"if a > 5" -> "\"var a = [1, 2, 3, 4, {'x'\"" [label=else]
+	"\"var a = [1, 2, 3, 4, {'x'\"" -> "b = 4" [label=""]
 	"b = 4" -> "c = input()" [label=""]
 	"c = input()" -> fi1 [label=""]
 	fim [fillcolor=crimson style=filled]
