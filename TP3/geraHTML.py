@@ -1,13 +1,21 @@
-def writeInFile(string):
+def writeInFile(string,file):
     f = open("index.html", "w", encoding="utf-8")
     f.write(string)
     f.close
     
-def geraRel(data): 
+def geraRel(data,file): 
     string = '''
 <!DOCTYPE html>
 <html>
     <style>
+        .footer {
+           left: 0;
+           bottom: 0;
+           width: 100%;
+           background-color: #1a97bc;
+           color: #1a97bc;
+           text-align: center;
+        }
         * {
             box-sizing: border-box;
         }
@@ -68,12 +76,20 @@ def geraRel(data):
         th, td {
           padding: 15px;
         }
-        .center {
-          display: block;
-          margin-left: auto;
-          margin-right: auto;
-          width: 20%;
-        }
+
+        /* Create three equal columns that floats next to each other */
+.column1 {
+  float: left;
+  width: 33.33%;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row1:after {
+  content: "";
+  display: table;
+  clear: both;
+}
       </style>
     <head>
         <title>EG - TP2</title>
@@ -96,7 +112,7 @@ def geraRel(data):
                 Tiago Barata <i>PG47695</i>
         </div>
         <hr>''' + f'''
-        <div class="container">
+        <div class="container" style="margin-bottom: 20px;">
             <h3>1. Variáveis</h3>
                 <ul style="list-style-type:none">
                     <li><b >Variáveis do programa: </b> {len(data["vars"]["VARS"])} 
@@ -173,13 +189,32 @@ def geraRel(data):
     string += '''
                     </tr>
                 </table>
-                <h3>6. Control Flow Graph</h3>
-                <img src = "./graphs/graph.gv.png" alt = "CFG" class="center"/>
-                </div>
+                <h3>6. Gráficos de Análise de Código</h3>
+                <table>
+                    <tr>
+                        <th><a href="'''+file+'''" target="_blank"  style="color: inherit;"><b>Código</b></a></th>
+                        <th><b>CFG</b></th>
+                        <th><b>SDG</b></th>
+                    </tr>
+                     <tr>
+                        <td style="height:200px;"><object data="'''+file+'''" style="width: -webkit-fill-available;height: -webkit-fill-available;"></object></td>
+                        <td><a href="./graphs/CFG.gv.png" target="_blank"><img src = "./graphs/CFG.gv.png" alt = "CFG" style="width:80%;"/></a></td>
+                        <td><a href="./graphs/SDG.gv.png" target="_blank"><img src = "./graphs/SDG.gv.png" alt = "SDG" style="width:80%;"/></a></td>
+                    </tr>
+                </table>
+                <h3>7. Complexidade de McCabe's</h3>
+                <p>A Complexidade de McCabe's é ''' +str(data["complex"])+''' pois: </p>
+                <p>Número de Arestas: ''' +str(data["#edges"])+'''</p>
+                <p>Número de Vértices: ''' +str(data["#nodos"])+'''</p>
+                <p>Logo, aplicando a fórmula de complexidade <b>Arestas - Vértices + 2 </b> obtemos:</p>
+                <p  style="margin-left: 200px;"> A - V + 2 = ''' +str(data["#edges"])+''' - '''+str(data["#nodos"])+''' + 2 = ''' +str(data["complex"])+'''</p>
+
              </div>
+             <div class="footer">.</div>
         </div>
+        
     </body>
 </html>'''
 
-    writeInFile(string)
+    writeInFile(string,file)
        

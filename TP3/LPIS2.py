@@ -588,7 +588,8 @@ def varStatus(varS):
             sVar["DN"].append(var)        
     return sVar
 
-f = open("frase3.txt", "r")
+filename = "frase3.txt"
+f = open(filename, "r")
 
 frase = f.read()
 
@@ -602,4 +603,4 @@ data = MyInterpreter().visit(parse_tree)
 
 data["vars"] = varStatus(data["vars"])
 
-html.geraRel(data)
+html.geraRel(data,filename)

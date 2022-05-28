@@ -1,0 +1,19 @@
+var a = 2;
+var b = 2;
+var nome;
+if (a == b){
+    b = 3;
+    repeat{
+        a = a+1;
+    }until(a == 10);
+} else{
+    b = 30;
+};
+var a = 40;
+c = c + a;
+print(c);
+if(b<2 or c>b){
+    if(count == c){
+        b = a;
+    };
+};
