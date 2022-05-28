@@ -1,4 +1,4 @@
-digraph "graph" {
+digraph CFG {
 	inicio [fillcolor=chartreuse3 style=filled]
 	inicio -> "nome = \"EG\"" [label=""]
 	"nome = \"EG\"" -> "var curso = \"MIEI\"" [label=""]
@@ -12,14 +12,19 @@ digraph "graph" {
 	"if nome != curso" -> "if a+b > 3" [label=then]
 	"if a+b > 3" -> "set = {45, 46, 47}" [label=then]
 	"set = {45, 46, 47}" -> fi3
+	"if a+b > 3" -> "i = 0" [label=else]
 	"for i < 20" [shape=diamond]
-	"if a+b > 3" -> "for i < 20" [label=else]
+	"i = 0" -> "for i < 20" [label=""]
 	"for i < 20" -> "print(i)" [label=then]
 	"print(i)" -> "cebola = \"silencio\"" [label=""]
-	"cebola = \"silencio\"" -> "i = i+1" [label=""]
-	"i = i+1" -> "for i < 20" [label=""]
+	"cebola = \"silencio\"" -> "for i < 20" [label=""]
 	"for i < 20" -> "teste = 10" [label=else]
-	"teste = 10" -> fi3 [label=""]
+	"if b == 2" [shape=diamond]
+	"teste = 10" -> "if b == 2" [label=""]
+	"if b == 2" -> "print(b)" [label=then]
+	"print(b)" -> fi4
+	"if b == 2" -> fi4 [label=else]
+	fi4 -> fi3 [label=""]
 	fi3 -> "atum = 1" [label=""]
 	"atum = 1" -> fi2
 	"if nome != curso" -> fi2 [label=else]
