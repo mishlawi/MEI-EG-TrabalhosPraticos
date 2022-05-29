@@ -1,7 +1,7 @@
 digraph SDG {
 	ENTRY [fillcolor=chartreuse3 shape=box style=filled]
-	ENTRY -> "\"var a = 4\""
-	ENTRY -> "\"var c = 8\""
+	ENTRY -> "var a = 4"
+	ENTRY -> "var c = 8"
 	ENTRY -> "lista = [1, 2, 3, 4]"
 	ENTRY -> "if a > 5"
 	"if a > 5" -> then1
@@ -15,11 +15,11 @@ digraph SDG {
 	then4 -> "d = a+b"
 	then4 -> "while z == 2"
 	"while z == 2" -> "var z"
-	"while z == 2" -> "\"var const = \"a simple string\"\""
+	"while z == 2" -> "var const = \"a simple string\""
 	"while z == 2" -> "c = 3"
 	"while z == 2" -> "d = 1+8*9-3+c+c"
 	"if a > 5" -> else1
-	else1 -> "\"var a = [1, 2, 3, 4, {'x'\""
+	else1 -> "var a = [1, 2, 3, 4, {'x'; [11, 21, 31], 'y'; (12, 22, 52, [19, 9])}]"
 	else1 -> "b = 4"
 	else1 -> "c = input()"
 }

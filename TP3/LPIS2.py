@@ -53,8 +53,7 @@ class MyInterpreter (Interpreter):
         self.cfg.node("inicio", style="filled", fillcolor="chartreuse3")
         self.sdg = graphviz.Digraph('SDG', filename='SDG.gv', format="png")
         self.sdg.node("ENTRY", style="filled", fillcolor="chartreuse3", shape="box")
-        self.status = {'if': 0, 'ifs' : 0, 'if_start' : 0, 'label' : "", "dec" : False, "#nodos" : 2 , "#edges" : 1, "ENTRY" : "ENTRY", "rep" : 0}
-        self.last = 'inicio'
+        self.status = {'if': 0, 'if_start' : 0, 'label' : "", "dec" : False, "#nodos" : 2 , "#edges" : 1, "ENTRY" : "ENTRY", "rep" : 0, 'last' : 'inicio'}
         self.variaveis = {}  # {var: {DEC: 0, ND:False, UNI:True, DN:False}} DEC: # de declarações | ND: Não declarada | UNI : Usada mas Não Inicializada | DN : Declarada, mas não usada
         self.totVarsDec = 0
         self.totEstruturas = {"dicts" : 0, "listas" : 0, "tuplos" : 0, "conjuntos" : 0}
@@ -73,7 +72,7 @@ class MyInterpreter (Interpreter):
         data["#estruturasAninh"] = self.totEstruturasAninh
         data["estruturasAninhadas"] = self.controloAninh
         self.cfg.node("fim", style="filled", fillcolor="crimson")
-        self.cfg.edge(self.last,'fim')
+        self.cfg.edge(self.status['last'],'fim')
         self.cfg.render(directory='graphs',view=False)
         self.sdg.render(directory='graphs',view=False)
         #self.cfg.view()
@@ -96,10 +95,10 @@ class MyInterpreter (Interpreter):
 
         if self.status["dec"] == False:
             node = sub(r':', ';', var)
-            self.cfg.edge(self.last, node, label = self.status["label"])
+            self.cfg.edge(self.status['last'], node, label = self.status["label"])
             self.sdg.edge(self.status["ENTRY"], node)
             self.status["label"] = ""
-            self.last = node
+            self.status['last'] = node
             self.status['last'] = node
             self.status["#nodos"] += 1
             self.status["#edges"] += 1
@@ -124,17 +123,17 @@ class MyInterpreter (Interpreter):
     
         cond = self.visit(tree.children[0])
         self.cfg.node('while ' + cond, shape="diamond")
-        self.cfg.edge(self.last, 'while ' + cond, label = self.status["label"])
+        self.cfg.edge(self.status['last'], 'while ' + cond, label = self.status["label"])
         self.sdg.edge(self.status["ENTRY"], 'while ' + cond)
         last_entry = self.status["ENTRY"]
         self.status["ENTRY"] = 'while ' + cond
         self.status["label"] = "then"
-        self.last = 'while ' + cond
+        self.status['last'] = 'while ' + cond
 
         inst = self.visit(tree.children[1])
 
-        self.cfg.edge(self.last, 'while ' + cond, label = self.status["label"])
-        self.last = 'while ' + cond
+        self.cfg.edge(self.status['last'], 'while ' + cond, label = self.status["label"])
+        self.status['last'] = 'while ' + cond
         self.status["label"] = "else"
 
         self.status["#nodos"] += 1
@@ -150,18 +149,18 @@ class MyInterpreter (Interpreter):
         # "repeat" "{" instrucoes "}" "until" "(" condition ")"
         
         last_entry = self.status["ENTRY"]
-        self.cfg.edge(self.last, 'repeat' + str(self.status["rep"]), label = self.status["label"])
+        self.cfg.edge(self.status['last'], 'repeat' + str(self.status["rep"]), label = self.status["label"])
 
         cond = self.visit(tree.children[1])
         self.sdg.edge(self.status["ENTRY"], 'repeat_until ' + cond)
-        self.last = 'repeat' + str(self.status["rep"])
+        self.status['last'] = 'repeat' + str(self.status["rep"])
         self.status["ENTRY"] = 'repeat_until ' + cond
         inst = self.visit(tree.children[0])
         self.cfg.node('until ' + cond, shape="diamond")
-        self.cfg.edge(self.last, 'until ' + cond, label = self.status["label"])
+        self.cfg.edge(self.status['last'], 'until ' + cond, label = self.status["label"])
         self.cfg.edge('until ' + cond, 'repeat' + str(self.status["rep"]), label = "then")
         self.status["label"] = "else"
-        self.last = 'until ' + cond
+        self.status['last'] = 'until ' + cond
 
         self.status["#nodos"] += 2
         self.status["#edges"] += 3
@@ -182,18 +181,18 @@ class MyInterpreter (Interpreter):
             
             cond = self.visit(tree.children[1])
             self.cfg.node('for ' + cond, shape="diamond")
-            self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
+            self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
             self.sdg.edge(self.status["ENTRY"], 'for ' + cond)
             last_entry = self.status["ENTRY"]
             self.status["ENTRY"] = 'for ' + cond
             self.status["label"] = "then"
-            self.last = 'for ' + cond
+            self.status['last'] = 'for ' + cond
 
             inst = self.visit(tree.children[3])
 
             self.visit(tree.children[2])
-            self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
-            self.last = 'for ' + cond
+            self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
+            self.status['last'] = 'for ' + cond
             self.status["label"] = "else"
 
             self.status["#nodos"] += 1
@@ -201,17 +200,17 @@ class MyInterpreter (Interpreter):
         elif len(tree.children) == 2:
             cond = self.visit(tree.children[0])
             self.cfg.node('for ' + cond, shape="diamond")
-            self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
+            self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
             self.sdg.edge(self.status["ENTRY"], 'for ' + cond)
             last_entry = self.status["ENTRY"]
             self.status["ENTRY"] = 'for ' + cond
             self.status["label"] = "then"
-            self.last = 'for ' + cond
+            self.status['last'] = 'for ' + cond
 
             inst = self.visit(tree.children[1])
 
-            self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
-            self.last = 'for ' + cond
+            self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
+            self.status['last'] = 'for ' + cond
             self.status["label"] = "else"
 
 
@@ -223,34 +222,34 @@ class MyInterpreter (Interpreter):
             
                 cond = self.visit(tree.children[1])
                 self.cfg.node('for ' + cond, shape="diamond")
-                self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
+                self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
                 self.sdg.edge(self.status["ENTRY"], 'for ' + cond)
                 last_entry = self.status["ENTRY"]
                 self.status["ENTRY"] = 'for ' + cond
                 
                 self.status["label"] = "then"
-                self.last = 'for ' + cond
+                self.status['last'] = 'for ' + cond
 
                 inst = self.visit(tree.children[2])
 
-                self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
-                self.last = 'for ' + cond
+                self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
+                self.status['last'] = 'for ' + cond
                 self.status["label"] = "else"
             else:            
                 cond = self.visit(tree.children[0])
                 self.cfg.node('for ' + cond, shape="diamond")
-                self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
+                self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
                 self.sdg.edge(self.status["ENTRY"], 'for ' + cond)
                 last_entry = self.status["ENTRY"]
                 self.status["ENTRY"] = 'for ' + cond
                 self.status["label"] = "then"
-                self.last = 'for ' + cond
+                self.status['last'] = 'for ' + cond
 
                 inst = self.visit(tree.children[2])
 
                 self.visit(tree.children[1])
-                self.cfg.edge(self.last, 'for ' + cond, label = self.status["label"])
-                self.last = 'for ' + cond
+                self.cfg.edge(self.status['last'], 'for ' + cond, label = self.status["label"])
+                self.status['last'] = 'for ' + cond
                 self.status["label"] = "else"
             self.status["#nodos"] += 1
             self.status["#edges"] += 2
@@ -300,29 +299,29 @@ class MyInterpreter (Interpreter):
         if_number = self.status["if"]
         cond = self.visit(tree.children[0])
         self.cfg.node('if ' + cond, shape="diamond")
-        self.cfg.edge(self.last, 'if ' + cond, label = self.status["label"])
+        self.cfg.edge(self.status['last'], 'if ' + cond, label = self.status["label"])
         self.sdg.edge(self.status["ENTRY"], 'if ' + cond)
         self.sdg.edge('if ' + cond, 'then' + str(if_number))
         last_entry = self.status["ENTRY"]
         self.status["ENTRY"] = 'then' + str(if_number)
         self.status["label"] = ""
-        self.last = 'if ' + cond
+        self.status['last'] = 'if ' + cond
         self.status["label"] = "then"
         inst_type = self.visit(tree.children[1])
         
-        self.cfg.edge(self.last, "fi" + str(if_number))
+        self.cfg.edge(self.status['last'], "fi" + str(if_number))
         
 
         dicionario = {"type": "if", "cond" : cond, "inst_type":inst_type[0], "inst" : inst_type[1]}
         if len(tree.children) == 3:
             self.sdg.edge('if ' + cond, 'else' + str(if_number))
             self.status["ENTRY"] = 'else' + str(if_number)
-            self.last = 'if ' + cond
+            self.status['last'] = 'if ' + cond
             self.status["label"] = "else"
             else_inst = self.visit(tree.children[2])
             dicionario["else_inst_type"] = else_inst[0]
             dicionario["else_inst"] = else_inst[1]
-            self.cfg.edge(self.last, "fi" + str(if_number), label = self.status["label"])
+            self.cfg.edge(self.status['last'], "fi" + str(if_number), label = self.status["label"])
         else:
             self.cfg.edge('if ' + cond, "fi" + str(if_number), label = "else")
 
@@ -336,7 +335,7 @@ class MyInterpreter (Interpreter):
             simples = self.geraCodigoSimples(dicionario)
             self.controloAninh[livre] = simples
 
-        self.last = "fi" + str(if_number)
+        self.status['last'] = "fi" + str(if_number)
 
         self.status["#nodos"] += 2
         self.status["#edges"] += 3
@@ -387,16 +386,16 @@ class MyInterpreter (Interpreter):
         
         if self.status['dec'] == False:
             node = sub(r':', ';', var)
-            self.cfg.edge(self.last, node, label = self.status["label"])
+            self.cfg.edge(self.status['last'], node, label = self.status["label"])
             self.sdg.edge(self.status["ENTRY"], node)
             self.status["label"] = ""
-            self.last = node
+            self.status['last'] = node
         else:
             node = 'var ' + sub(r':', ';', q)
-            self.cfg.edge(self.last, node, label = self.status["label"])
+            self.cfg.edge(self.status['last'], node, label = self.status["label"])
             self.sdg.edge(self.status["ENTRY"], node)
             self.status["label"] = ""
-            self.last = node
+            self.status['last'] = node
             self.status["dec"] = False
         
         self.status["#nodos"] += 1
@@ -505,10 +504,10 @@ class MyInterpreter (Interpreter):
         self.totInst["rw"]+=1
         var =  "print(" + str(q[0]) + ")"
 
-        self.cfg.edge(self.last, var, label = self.status["label"])
+        self.cfg.edge(self.status['last'], var, label = self.status["label"])
         self.sdg.edge(self.status["ENTRY"], var)
         self.status["label"] = ""
-        self.last = var
+        self.status['last'] = var
         self.status["#nodos"] += 1
         self.status["#edges"] += 1
         
