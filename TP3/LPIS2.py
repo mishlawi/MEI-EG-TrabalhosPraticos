@@ -53,7 +53,7 @@ class MyInterpreter (Interpreter):
         self.cfg.node("inicio", style="filled", fillcolor="chartreuse3")
         self.sdg = graphviz.Digraph('SDG', filename='SDG.gv', format="png")
         self.sdg.node("ENTRY", style="filled", fillcolor="chartreuse3", shape="box")
-        self.status = {'if': 0, 'if_start' : 0, 'label' : "", "dec" : False, "#nodos" : 2 , "#edges" : 1, "ENTRY" : "ENTRY", "rep" : 0, 'last' : 'inicio'}
+        self.status = {'if': 0, 'label' : "", "dec" : False, "#nodos" : 2 , "#edges" : 1, "ENTRY" : "ENTRY", "rep" : 0, 'last' : 'inicio'}
         self.variaveis = {}  # {var: {DEC: 0, ND:False, UNI:True, DN:False}} DEC: # de declarações | ND: Não declarada | UNI : Usada mas Não Inicializada | DN : Declarada, mas não usada
         self.totVarsDec = 0
         self.totEstruturas = {"dicts" : 0, "listas" : 0, "tuplos" : 0, "conjuntos" : 0}
